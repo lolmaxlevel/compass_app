@@ -46,41 +46,7 @@ class _MyAppState extends State<MyApp> {
               locationData('Speed: $speed'),
               locationData('Time: $time'),
               ElevatedButton(
-                  onPressed: () async {
-                    final channel = WebSocketChannel.connect(
-                      Uri.parse('ws://192.168.0.105:9000'),
-                    );
-                    await BackgroundLocation.setAndroidNotification(
-                      title: 'Background service is running',
-                      message: 'Background location in progress',
-                      icon: '@mipmap/ic_launcher',
-                    );
-                    await BackgroundLocation.setAndroidConfiguration(1000);
-                    await BackgroundLocation.startLocationService();
-                    BackgroundLocation.getLocationUpdates((location) {
-                      channel.sink.add("lat:${location.latitude} alt:${location.altitude} time:${location.time.toString()}");
-                      setState(() {
-                        latitude = location.latitude.toString();
-                        longitude = location.longitude.toString();
-                        accuracy = location.accuracy.toString();
-                        altitude = location.altitude.toString();
-                        bearing = location.bearing.toString();
-                        speed = location.speed.toString();
-                        time = DateTime.fromMillisecondsSinceEpoch(
-                            location.time!.toInt())
-                            .toString();
-                      });
-                      print('''\n
-                        Latitude:  $latitude
-                        Longitude: $longitude
-                        Altitude: $altitude
-                        Accuracy: $accuracy
-                        Bearing:  $bearing
-                        Speed: $speed
-                        Time: $time
-                      ''');
-                    });
-                  },
+                  onPressed: startLocationService,
                   child: Text('Start Location Service')),
               ElevatedButton(
                   onPressed: () {
@@ -122,7 +88,41 @@ class _MyAppState extends State<MyApp> {
       print('This is current Location ' + location.toMap().toString());
     });
   }
-
+  void startLocationService() async {
+    final channel = WebSocketChannel.connect(
+      Uri.parse('ws://192.168.0.105:9000'),
+    );
+    await BackgroundLocation.setAndroidNotification(
+      title: 'Background service is running',
+      message: 'Background location in progress',
+      icon: '@mipmap/ic_launcher',
+    );
+    await BackgroundLocation.setAndroidConfiguration(1000);
+    await BackgroundLocation.startLocationService();
+    BackgroundLocation.getLocationUpdates((location) {
+      channel.sink.add("lat:${location.latitude} alt:${location.altitude} time:${location.time.toString()}");
+      setState(() {
+        latitude = location.latitude.toString();
+        longitude = location.longitude.toString();
+        accuracy = location.accuracy.toString();
+        altitude = location.altitude.toString();
+        bearing = location.bearing.toString();
+        speed = location.speed.toString();
+        time = DateTime.fromMillisecondsSinceEpoch(
+            location.time!.toInt())
+            .toString();
+      });
+      print('''\n
+                        Latitude:  $latitude
+                        Longitude: $longitude
+                        Altitude: $altitude
+                        Accuracy: $accuracy
+                        Bearing:  $bearing
+                        Speed: $speed
+                        Time: $time
+                      ''');
+    });
+  }
   @override
   void dispose() {
     BackgroundLocation.stopLocationService();
