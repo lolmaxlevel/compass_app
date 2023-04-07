@@ -2,8 +2,12 @@ import 'package:background_location/background_location.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'package:compass_app/settings.dart';
 
-void main() => runApp(MyApp());
+
+void main() => runApp(MaterialApp(
+  home: MyApp(),
+));
 
 class MyApp extends StatefulWidget {
   @override
@@ -88,6 +92,13 @@ class _MyAppState extends State<MyApp> {
                     getCurrentLocation();
                   },
                   child: Text('Get Current Location')),
+              ElevatedButton(onPressed: (){
+                Navigator.of(context).push(
+                    MaterialPageRoute(
+                    builder: (context) => const Settings(),
+                    ),
+                );
+              }, child: Text('open settings'))
             ],
           ),
         ),
