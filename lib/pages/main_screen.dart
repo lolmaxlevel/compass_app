@@ -36,52 +36,67 @@ class _MainScreenState extends State<MainScreen> {
     return AnimatedTheme(
       duration: const Duration(seconds: 1),
         data: Theme.of(context),
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(AdaptiveTheme.of(context).mode.modeName.toUpperCase()),
+        child: Container(
+          constraints: const BoxConstraints.expand(),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: const AssetImage("assets/img.png"),
+                opacity:
+                AdaptiveTheme.of(context).mode.modeName.toUpperCase() == "DARK"
+                    ? 1
+                    : 0.1,
+                fit: BoxFit.cover
+            )
           ),
-          body: Center(
-            child: ListView(
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: () => AdaptiveTheme.of(context).toggleThemeMode(),
-                  style: ElevatedButton.styleFrom(
-                    visualDensity:
-                    const VisualDensity(horizontal: 4, vertical: 2),
-                  ),
-                  child: const Text('Toggle Theme Mode'),
-                ),
-                locationData('Latitude: $latitude'),
-                locationData('Longitude: $longitude'),
-                locationData('Altitude: $altitude'),
-                locationData('Accuracy: $accuracy'),
-                locationData('Bearing: $bearing'),
-                locationData('Speed: $speed'),
-                locationData('Time: $time'),
-                ElevatedButton(
-                    onPressed: startLocationService,
-                    child: Text('Start Location Service')),
-                ElevatedButton(
-                    onPressed: () {
-                      BackgroundLocation.stopLocationService();
-                    },
-                    child: Text('Stop Location Service')),
-                ElevatedButton(
-                    onPressed: () {
-                      getCurrentLocation();
-                    },
-                    child: Text('Get Current Location')),
-                ElevatedButton(onPressed: (){
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Settings(),
+          // #TODO добавить нормальный свитч темы(только на черную и белую, что бы избежать бага с системной)
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              title: Text(AdaptiveTheme.of(context).mode.modeName.toUpperCase()),
+            ),
+            body: Center(
+              child: ListView(
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () => AdaptiveTheme.of(context).toggleThemeMode(),
+                    style: ElevatedButton.styleFrom(
+                      visualDensity:
+                      const VisualDensity(horizontal: 4, vertical: 2),
                     ),
-                  );
-                }, child: Text('open settings'))
-              ],
+                    child: const Text('Toggle Theme Mode'),
+                  ),
+                  locationData('Latitude: $latitude'),
+                  locationData('Longitude: $longitude'),
+                  locationData('Altitude: $altitude'),
+                  locationData('Accuracy: $accuracy'),
+                  locationData('Bearing: $bearing'),
+                  locationData('Speed: $speed'),
+                  locationData('Time: $time'),
+                  ElevatedButton(
+                      onPressed: startLocationService,
+                      child: Text('Start Location Service')),
+                  ElevatedButton(
+                      onPressed: () {
+                        BackgroundLocation.stopLocationService();
+                      },
+                      child: Text('Stop Location Service')),
+                  ElevatedButton(
+                      onPressed: () {
+                        getCurrentLocation();
+                      },
+                      child: Text('Get Current Location')),
+                  ElevatedButton(onPressed: (){
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const Settings(),
+                      ),
+                    );
+                  }, child: Text('open settings'))
+                ],
+              ),
             ),
           ),
-        ),
+        )
     );
   }
 

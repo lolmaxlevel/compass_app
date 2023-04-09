@@ -20,12 +20,8 @@ class MyApp extends StatelessWidget {
     return AnimatedSwitcher(
       duration: const Duration(seconds: 1),
       child: AdaptiveTheme(
-        light: ThemeData(
-          primarySwatch: Colors.lightGreen,
-        ),
-        dark: ThemeData(
-          primarySwatch: Colors.yellow,
-        ),
+        light: ThemeData.light(useMaterial3: true),
+        dark: ThemeData.dark(useMaterial3: true),
         initial: savedThemeMode ?? AdaptiveThemeMode.light,
         builder: (theme, darkTheme) => MaterialApp(
           theme: theme,
