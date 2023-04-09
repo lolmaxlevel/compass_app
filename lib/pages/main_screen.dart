@@ -2,7 +2,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:compass_app/settings.dart';
+import 'package:compass_app/pages/settings.dart';
 
 
 class MainScreen extends StatefulWidget {
