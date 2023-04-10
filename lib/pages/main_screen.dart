@@ -1,7 +1,10 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
 import 'package:compass_app/web_socket_worker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:compass_app/pages/settings.dart';
@@ -64,6 +67,17 @@ class _MainScreenState extends State<MainScreen> {
             body: Center(
               child: ListView(
                 children: <Widget>[
+                  PinCodeTextField(
+                      appContext: context,
+                      length: 6,
+                      enabled: true,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+                      ],
+                      keyboardType: TextInputType.number,
+                      onChanged: (text) {
+                        print(text);
+                      }),
                   ElevatedButton(
                     onPressed: () => AdaptiveTheme.of(context).toggleThemeMode(),
                     style: ElevatedButton.styleFrom(
@@ -88,11 +102,6 @@ class _MainScreenState extends State<MainScreen> {
                         BackgroundLocation.stopLocationService();
                       },
                       child: Text('Stop Location Service')),
-                  ElevatedButton(
-                      onPressed: () {
-                        getCurrentLocation();
-                      },
-                      child: Text('Get Current Location')),
                   ElevatedButton(onPressed: (){
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -111,30 +120,30 @@ class _MainScreenState extends State<MainScreen> {
   Widget locationData(String data) {
     return Text(
       data,
-      style: TextStyle(
+      style: const TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 18,
       ),
       textAlign: TextAlign.center,
     );
   }
-  void getCurrentLocation() {
-    BackgroundLocation().getCurrentLocation().then((location) {
-      print('This is current Location ' + location.toMap().toString());
-    });
-  }
+
   void startLocationService() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? host = prefs.getString('host');
     ws == null ? ws = WebSocketWorker(host!) : ws.open(host!);
-    print("ws://$host");
-    await BackgroundLocation.setAndroidNotification(
+    if (kDebugMode) {
+      print("trying to connect $host");
+
+    }await BackgroundLocation.setAndroidNotification(
       title: 'Background service is running',
       message: 'Background location in progress',
       icon: '@mipmap/ic_launcher',
     );
+
     await BackgroundLocation.setAndroidConfiguration(1000);
     await BackgroundLocation.startLocationService();
+
     BackgroundLocation.getLocationUpdates((location) {
       ws.send(Request(
           '123',
@@ -144,7 +153,7 @@ class _MainScreenState extends State<MainScreen> {
           location.accuracy.toString(),
           location.bearing.toString(),
           location.speed.toString(),
-          location.time.toString()
+          DateTime.fromMillisecondsSinceEpoch(location.time as int).toString(),
       ));
       setState(() {
         latitude = location.latitude.toString();
