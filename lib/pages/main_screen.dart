@@ -75,21 +75,26 @@ class _MainScreenState extends State<MainScreen> {
             body: Center(
               child: ListView(
                 children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 50.0),
+                    child: PinCodeTextField(
+                        appContext: context,
+                        controller: _controller,
+                        length: 6,
+                        readOnly: true,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+                        ],
+                        keyboardType: TextInputType.number,
+                        onChanged: (text) {
+                          print(text);
+                        }),
+                  ),
                   PinCodeTextField(
                       appContext: context,
-                      controller: _controller,
                       length: 6,
-                      readOnly: true,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-                      ],
-                      keyboardType: TextInputType.number,
-                      onChanged: (text) {
-                        print(text);
-                      }),
-                  PinCodeTextField(
-                      appContext: context,
-                      length: 6,
+                      useHapticFeedback: true,
+                      hapticFeedbackTypes: HapticFeedbackTypes.light,
                       controller: _controller2,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp("[0-9]")),
