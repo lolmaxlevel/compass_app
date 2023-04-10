@@ -25,6 +25,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  int id = 0;
   dynamic ws;
   String host = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -40,6 +41,11 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     _prefs.then((SharedPreferences prefs) {
       host = prefs.getString('host') ?? "";
+      id = prefs.getInt('id') ?? 0;
+      if (id == 0){
+        id = UniqueKey().hashCode % 1000000;
+      }
+      prefs.setInt('id', id);
     });
     super.initState();
   }
@@ -67,6 +73,7 @@ class _MainScreenState extends State<MainScreen> {
             body: Center(
               child: ListView(
                 children: <Widget>[
+                  Text(id.toString()),
                   PinCodeTextField(
                       appContext: context,
                       length: 6,
