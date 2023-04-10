@@ -1,8 +1,12 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
+import 'package:compass_app/web_socket_worker.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:compass_app/pages/settings.dart';
+
+import '../models/server_io.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -18,6 +22,9 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  dynamic ws;
+  String host = "";
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   String latitude = 'waiting...';
   String longitude = 'waiting...';
   String altitude = 'waiting...';
@@ -28,6 +35,9 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
+    _prefs.then((SharedPreferences prefs) {
+      host = prefs.getString('host') ?? "";
+    });
     super.initState();
   }
 
@@ -51,9 +61,6 @@ class _MainScreenState extends State<MainScreen> {
           // #TODO добавить нормальный свитч темы(только на черную и белую, что бы избежать бага с системной)
           child: Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              title: Text(AdaptiveTheme.of(context).mode.modeName.toUpperCase()),
-            ),
             body: Center(
               child: ListView(
                 children: <Widget>[
@@ -77,6 +84,7 @@ class _MainScreenState extends State<MainScreen> {
                       child: Text('Start Location Service')),
                   ElevatedButton(
                       onPressed: () {
+                        ws.close();
                         BackgroundLocation.stopLocationService();
                       },
                       child: Text('Stop Location Service')),
@@ -110,16 +118,16 @@ class _MainScreenState extends State<MainScreen> {
       textAlign: TextAlign.center,
     );
   }
-
   void getCurrentLocation() {
     BackgroundLocation().getCurrentLocation().then((location) {
       print('This is current Location ' + location.toMap().toString());
     });
   }
   void startLocationService() async {
-    final channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.0.105:9000'),
-    );
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? host = prefs.getString('host');
+    ws == null ? ws = WebSocketWorker(host!) : ws.open(host!);
+    print("ws://$host");
     await BackgroundLocation.setAndroidNotification(
       title: 'Background service is running',
       message: 'Background location in progress',
@@ -128,7 +136,16 @@ class _MainScreenState extends State<MainScreen> {
     await BackgroundLocation.setAndroidConfiguration(1000);
     await BackgroundLocation.startLocationService();
     BackgroundLocation.getLocationUpdates((location) {
-      channel.sink.add("lat:${location.latitude} alt:${location.altitude} time:${location.time.toString()}");
+      ws.send(Request(
+          '123',
+          location.latitude.toString(),
+          location.longitude.toString(),
+          location.altitude.toString(),
+          location.accuracy.toString(),
+          location.bearing.toString(),
+          location.speed.toString(),
+          location.time.toString()
+      ));
       setState(() {
         latitude = location.latitude.toString();
         longitude = location.longitude.toString();

@@ -69,7 +69,7 @@ class _SettingsState extends State<Settings> {
                                 controller: _controller,
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'abeba',
+                                  labelText: 'host',
                                 ),
                                 onSubmitted: (string) async {
                                   _setHost(string);
