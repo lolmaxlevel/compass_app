@@ -25,7 +25,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller2 = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   int id = 0;
   dynamic ws;
   String host = "";
@@ -78,11 +79,27 @@ class _MainScreenState extends State<MainScreen> {
                       appContext: context,
                       controller: _controller,
                       length: 6,
-                      enabled: false,
+                      readOnly: true,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                       ],
                       keyboardType: TextInputType.number,
+                      onChanged: (text) {
+                        print(text);
+                      }),
+                  PinCodeTextField(
+                      appContext: context,
+                      length: 6,
+                      controller: _controller2,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+                      ],
+                      keyboardType: TextInputType.number,
+                      animationType: AnimationType.scale,
+                      autoDismissKeyboard: true,
+                      onTap: () {
+                        _controller2.text='112311';
+                      },
                       onChanged: (text) {
                         print(text);
                       }),
