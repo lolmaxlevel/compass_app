@@ -25,6 +25,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  TextEditingController _controller = TextEditingController();
   int id = 0;
   dynamic ws;
   String host = "";
@@ -46,6 +47,7 @@ class _MainScreenState extends State<MainScreen> {
         id = UniqueKey().hashCode % 1000000;
       }
       prefs.setInt('id', id);
+      _controller.text = id.toString();
     });
     super.initState();
   }
@@ -67,17 +69,16 @@ class _MainScreenState extends State<MainScreen> {
                 fit: BoxFit.cover
             )
           ),
-          // #TODO добавить нормальный свитч темы(только на черную и белую, что бы избежать бага с системной)
           child: Scaffold(
             backgroundColor: Colors.transparent,
             body: Center(
               child: ListView(
                 children: <Widget>[
-                  Text(id.toString()),
                   PinCodeTextField(
                       appContext: context,
+                      controller: _controller,
                       length: 6,
-                      enabled: true,
+                      enabled: false,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                       ],
@@ -86,7 +87,7 @@ class _MainScreenState extends State<MainScreen> {
                         print(text);
                       }),
                   ElevatedButton(
-                    onPressed: () => AdaptiveTheme.of(context).toggleThemeMode(),
+                    onPressed: () => toggleTheme(),
                     style: ElevatedButton.styleFrom(
                       visualDensity:
                       const VisualDensity(horizontal: 4, vertical: 2),
@@ -134,7 +135,16 @@ class _MainScreenState extends State<MainScreen> {
       textAlign: TextAlign.center,
     );
   }
-
+  void toggleTheme(){
+    if (AdaptiveTheme.of(context).mode.isDark)
+    {
+      AdaptiveTheme.of(context).setLight();
+    }
+    else
+    {
+      AdaptiveTheme.of(context).setDark();
+    }
+  }
   void startLocationService() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? host = prefs.getString('host');
