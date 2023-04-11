@@ -25,6 +25,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  bool flag = true;
   final TextEditingController _controller2 = TextEditingController();
   final TextEditingController _controller = TextEditingController();
   int id = 0;
@@ -75,6 +76,8 @@ class _MainScreenState extends State<MainScreen> {
             body: Center(
               child: ListView(
                 children: <Widget>[
+                  ElevatedButton(onPressed: flagInvert, child: Text(flag.toString())),
+                  Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 50.0),
                     child: PinCodeTextField(
@@ -156,6 +159,11 @@ class _MainScreenState extends State<MainScreen> {
       ),
       textAlign: TextAlign.center,
     );
+  }
+  void flagInvert(){
+    setState(() {
+      flag = !flag;
+    });
   }
   void toggleTheme(){
     if (AdaptiveTheme.of(context).mode.isDark)
