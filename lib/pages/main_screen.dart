@@ -59,93 +59,94 @@ class _MainScreenState extends State<MainScreen> {
     return AnimatedTheme(
       duration: const Duration(seconds: 1),
         data: Theme.of(context),
-        child: Container(
-          constraints: const BoxConstraints.expand(),
-          decoration: BoxDecoration(
-            image: DecorationImage(
-                image: const AssetImage("assets/img.png"),
-                opacity:
-                AdaptiveTheme.of(context).mode.modeName.toUpperCase() == "DARK"
-                    ? 1
-                    : 0.1,
-                fit: BoxFit.cover
-            )
-          ),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Center(
-              child: ListView(
-                children: <Widget>[
-                  ElevatedButton(onPressed: flagInvert, child: Text(flag.toString())),
-                  Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 50.0),
-                    child: PinCodeTextField(
+        child: Stack(
+          children: [
+            //Background Image
+            Positioned.fill(
+                 child: SizedBox(
+                     child: AnimatedOpacity(
+                       opacity:  AdaptiveTheme.of(context).mode.isDark? 0.15 : 1,
+                       duration: const Duration(milliseconds: 700),
+                       child: Image.asset("assets/img.png", fit: BoxFit.fill,),
+                 )
+                 )
+            ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Center(
+                child: ListView(
+                  children: <Widget>[
+                    ElevatedButton(onPressed: flagInvert, child: Text(flag.toString())),
+                    Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 50.0),
+                      child: PinCodeTextField(
+                          appContext: context,
+                          controller: _controller,
+                          length: 6,
+                          readOnly: true,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+                          ],
+                          keyboardType: TextInputType.number,
+                          onChanged: (text) {
+                            print(text);
+                          }),
+                    ),
+                    PinCodeTextField(
                         appContext: context,
-                        controller: _controller,
                         length: 6,
-                        readOnly: true,
+                        useHapticFeedback: true,
+                        hapticFeedbackTypes: HapticFeedbackTypes.light,
+                        controller: _controller2,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                         ],
                         keyboardType: TextInputType.number,
+                        animationType: AnimationType.scale,
+                        autoDismissKeyboard: true,
+                        onTap: () {
+                          _controller2.text='112311';
+                        },
                         onChanged: (text) {
                           print(text);
                         }),
-                  ),
-                  PinCodeTextField(
-                      appContext: context,
-                      length: 6,
-                      useHapticFeedback: true,
-                      hapticFeedbackTypes: HapticFeedbackTypes.light,
-                      controller: _controller2,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-                      ],
-                      keyboardType: TextInputType.number,
-                      animationType: AnimationType.scale,
-                      autoDismissKeyboard: true,
-                      onTap: () {
-                        _controller2.text='112311';
-                      },
-                      onChanged: (text) {
-                        print(text);
-                      }),
-                  ElevatedButton(
-                    onPressed: () => toggleTheme(),
-                    style: ElevatedButton.styleFrom(
-                      visualDensity:
-                      const VisualDensity(horizontal: 4, vertical: 2),
-                    ),
-                    child: const Text('Toggle Theme Mode'),
-                  ),
-                  locationData('Latitude: $latitude'),
-                  locationData('Longitude: $longitude'),
-                  locationData('Altitude: $altitude'),
-                  locationData('Accuracy: $accuracy'),
-                  locationData('Bearing: $bearing'),
-                  locationData('Speed: $speed'),
-                  locationData('Time: $time'),
-                  ElevatedButton(
-                      onPressed: startLocationService,
-                      child: Text('Start Location Service')),
-                  ElevatedButton(
-                      onPressed: () {
-                        ws.close();
-                        BackgroundLocation.stopLocationService();
-                      },
-                      child: Text('Stop Location Service')),
-                  ElevatedButton(onPressed: (){
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const Settings(),
+                    ElevatedButton(
+                      onPressed: () => toggleTheme(),
+                      style: ElevatedButton.styleFrom(
+                        visualDensity:
+                        const VisualDensity(horizontal: 4, vertical: 2),
                       ),
-                    );
-                  }, child: Text('open settings'))
-                ],
+                      child: const Text('Toggle Theme Mode'),
+                    ),
+                    locationData('Latitude: $latitude'),
+                    locationData('Longitude: $longitude'),
+                    locationData('Altitude: $altitude'),
+                    locationData('Accuracy: $accuracy'),
+                    locationData('Bearing: $bearing'),
+                    locationData('Speed: $speed'),
+                    locationData('Time: $time'),
+                    ElevatedButton(
+                        onPressed: startLocationService,
+                        child: Text('Start Location Service')),
+                    ElevatedButton(
+                        onPressed: () {
+                          ws.close();
+                          BackgroundLocation.stopLocationService();
+                        },
+                        child: Text('Stop Location Service')),
+                    ElevatedButton(onPressed: (){
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const Settings(),
+                        ),
+                      );
+                    }, child: Text('open settings'))
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
         )
     );
   }
