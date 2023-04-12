@@ -8,6 +8,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:compass_app/pages/settings.dart';
+import 'package:flutter/services.dart';
 
 import '../models/server_io.dart';
 
@@ -84,14 +85,21 @@ class _MainScreenState extends State<MainScreen> {
                           appContext: context,
                           controller: _controller,
                           length: 6,
-                          readOnly: true,
+                          enabled: false,
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                           ],
                           keyboardType: TextInputType.number,
-                          onChanged: (text) {
-                            print(text);
-                          }),
+                          onTap: () {
+                            Clipboard.setData(
+                                ClipboardData(text: _controller.text))
+                                .then((_){ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                                const SnackBar(
+                                    content: Text("Code copied to clipboard")));
+                            });
+                          },
+                        onChanged: (String value) { print(value);},),
                     ),
                     PinCodeTextField(
                         appContext: context,
@@ -105,6 +113,7 @@ class _MainScreenState extends State<MainScreen> {
                         keyboardType: TextInputType.number,
                         animationType: AnimationType.scale,
                         autoDismissKeyboard: true,
+                        cursorColor: Colors.black,
                         onTap: () {
                           _controller2.text='112311';
                         },
