@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
 import 'package:compass_app/web_socket_worker.dart';
@@ -6,10 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:compass_app/pages/settings.dart';
-import 'package:flutter/services.dart';
-
 import '../models/server_io.dart';
 
 
@@ -26,6 +25,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  String _buttonText = "Нажми меня";
+  bool _buttonPressed = false;
   bool flag = true;
   final TextEditingController _controller2 = TextEditingController();
   final TextEditingController _controller = TextEditingController();
@@ -40,6 +41,19 @@ class _MainScreenState extends State<MainScreen> {
   String bearing = 'waiting...';
   String speed = 'waiting...';
   String time = 'waiting...';
+
+  void _onButtonPressed() {
+    setState(() {
+      _buttonPressed = !_buttonPressed;
+      if (_buttonPressed) {
+        // генерируем случайное 6-значное число
+        Random random = Random();
+        _buttonText = random.nextInt(999999).toString().padLeft(6, '0');
+      } else {
+        _buttonText = "Нажми меня";
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -96,10 +110,32 @@ class _MainScreenState extends State<MainScreen> {
                                 .then((_){ScaffoldMessenger.of(context)
                                 .showSnackBar(
                                 const SnackBar(
-                                    content: Text("Code copied to clipboard")));
+                                  content: Text("Code copied to clipboard!"),
+                                  duration: Duration(seconds: 1),
+                                ));
                             });
                           },
-                        onChanged: (String value) { print(value);},),
+                        onChanged: (String value) {
+                            if (kDebugMode) {
+                              print(value);
+                            }},),
+                    ),
+                    GestureDetector(
+                      onTap: _onButtonPressed,
+                      child: Container(
+                        width: 200,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Text(
+                            _buttonText
+                          ),
+                        ),
+                      ),
                     ),
                     PinCodeTextField(
                         appContext: context,
