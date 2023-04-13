@@ -41,7 +41,6 @@ class _FirsCodeState extends State<FirsCode> {
         pinTheme: PinTheme(
           fieldHeight: 45,
           fieldWidth: 20,
-          shape: PinCodeFieldShape.underline,
         ),
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp("[0-9]")),

@@ -1,13 +1,10 @@
-import 'dart:math';
-
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
 import 'package:compass_app/web_socket_worker.dart';
 import 'package:compass_app/widgets/first_code.dart';
+import 'package:compass_app/widgets/paste_code_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:compass_app/pages/settings.dart';
 import '../models/server_io.dart';
@@ -26,13 +23,11 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  Widget _animatedButton = Text("copy the code");
-  String _buttonText = "Нажми меня";
+  Widget _animatedButton = const Text("copy the code");
   bool _buttonPressed = false;
+  Widget _animatedButton2 = const Text("paste the code");
+  bool _button2Pressed = false;
   bool flag = true;
-  final TextEditingController _controller2 = TextEditingController();
-  final TextEditingController _controller = TextEditingController();
-  int id = 0;
   dynamic ws;
   String host = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -48,10 +43,19 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _buttonPressed = !_buttonPressed;
       if (_buttonPressed) {
-        // генерируем случайное 6-значное число
         _animatedButton = const FirsCode();
       } else {
-        _animatedButton = const Text("aboba");
+        _animatedButton = const Text("copy the code");
+      }
+    });
+  }
+  void _onButton2Pressed() {
+    setState(() {
+      _button2Pressed = !_button2Pressed;
+      if (_button2Pressed) {
+        _animatedButton2 = const PasteCode();
+      } else {
+        _animatedButton2 = const Text("paste the code");
       }
     });
   }
@@ -60,12 +64,6 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     _prefs.then((SharedPreferences prefs) {
       host = prefs.getString('host') ?? "";
-      id = prefs.getInt('id') ?? 0;
-      if (id == 0){
-        id = UniqueKey().hashCode % 1000000;
-      }
-      prefs.setInt('id', id);
-      _controller.text = id.toString();
     });
     super.initState();
   }
@@ -89,89 +87,87 @@ class _MainScreenState extends State<MainScreen> {
             ),
             Scaffold(
               backgroundColor: Colors.transparent,
-              body: Center(
-                child: Column(
-                  children: [
-                    ElevatedButton(onPressed: flagInvert, child: Text(flag.toString())),
-                    Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
-                    GestureDetector(
-                      onTap: _onButtonPressed,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 4/6,
-                        height: MediaQuery.of(context).size.height * 1/15,
-                        decoration: BoxDecoration(
-                          // color: Colors.transparent,
-                          shape: BoxShape.rectangle,
-                          border: Border.all(
-                            width: 3,
+              body: SafeArea(
+                child: Center(
+                  child: Column(
+                    children: [
+                      Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
+                      GestureDetector(
+                        onTap: _onButtonPressed,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 4/6,
+                          height: MediaQuery.of(context).size.height * 1/15,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            shape: BoxShape.rectangle,
+                            border: Border.all(
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(50),
                           ),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Center(
-                          child: AnimatedSwitcher(
-                            duration: const Duration(seconds: 1),
-                            child: _animatedButton,
+                          child: Center(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(seconds: 1),
+                              child: _animatedButton,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const Text('or'),
-                    PinCodeTextField(
-                        appContext: context,
-                        length: 6,
-                        useHapticFeedback: true,
-                        hapticFeedbackTypes: HapticFeedbackTypes.light,
-                        controller: _controller2,
-                        pinTheme: PinTheme(
-                            fieldWidth: 20,
-                            shape: PinCodeFieldShape.underline,
-                            activeColor: Colors.amberAccent
+                      const Text('or'),
+                      GestureDetector(
+                        onTap: _onButton2Pressed,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 4/6,
+                          height: MediaQuery.of(context).size.height * 1/15,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            shape: BoxShape.rectangle,
+                            border: Border.all(
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Center(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(seconds: 1),
+                              child: _animatedButton2,
+                            ),
+                          ),
                         ),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-                        ],
-                        keyboardType: TextInputType.number,
-                        animationType: AnimationType.scale,
-                        autoDismissKeyboard: true,
-                        cursorColor: Colors.black,
-                        onTap: () {
-                          _controller2.text='112311';
-                        },
-                        onChanged: (text) {
-                          print(text);
-                        }),
-                    ElevatedButton(
-                      onPressed: () => toggleTheme(),
-                      style: ElevatedButton.styleFrom(
-                        visualDensity:
-                        const VisualDensity(horizontal: 4, vertical: 2),
                       ),
-                      child: const Text('Toggle Theme Mode'),
-                    ),
-                    locationData('Latitude: $latitude'),
-                    locationData('Longitude: $longitude'),
-                    locationData('Altitude: $altitude'),
-                    locationData('Accuracy: $accuracy'),
-                    locationData('Bearing: $bearing'),
-                    locationData('Speed: $speed'),
-                    locationData('Time: $time'),
-                    ElevatedButton(
-                        onPressed: startLocationService,
-                        child: Text('Start Location Service')),
-                    ElevatedButton(
-                        onPressed: () {
-                          ws.close();
-                          BackgroundLocation.stopLocationService();
-                        },
-                        child: Text('Stop Location Service')),
-                    ElevatedButton(onPressed: (){
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const Settings(),
+                      ElevatedButton(
+                        onPressed: () => toggleTheme(),
+                        style: ElevatedButton.styleFrom(
+                          visualDensity:
+                          const VisualDensity(horizontal: 4, vertical: 2),
                         ),
-                      );
-                    }, child: Text('open settings')),
-                  ],
+                        child: const Text('Toggle Theme Mode'),
+                      ),
+                      locationData('Latitude: $latitude'),
+                      locationData('Longitude: $longitude'),
+                      locationData('Altitude: $altitude'),
+                      locationData('Accuracy: $accuracy'),
+                      locationData('Bearing: $bearing'),
+                      locationData('Speed: $speed'),
+                      locationData('Time: $time'),
+                      ElevatedButton(
+                          onPressed: startLocationService,
+                          child: Text('Start Location Service')),
+                      ElevatedButton(
+                          onPressed: () {
+                            ws.close();
+                            BackgroundLocation.stopLocationService();
+                          },
+                          child: Text('Stop Location Service')),
+                      ElevatedButton(onPressed: (){
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const Settings(),
+                          ),
+                        );
+                      }, child: Text('open settings')),
+                    ],
+                  ),
                 ),
               ),
             ),
