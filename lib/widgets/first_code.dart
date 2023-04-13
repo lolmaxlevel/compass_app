@@ -4,15 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FirsCode extends StatefulWidget {
-  const FirsCode({Key? key}) : super(key: key);
+class CopyCode extends StatefulWidget {
+  const CopyCode({Key? key}) : super(key: key);
 
   @override
-  State<FirsCode> createState() => _FirsCodeState();
+  State<CopyCode> createState() => _CopyCodeState();
 }
 
 
-class _FirsCodeState extends State<FirsCode> {
+class _CopyCodeState extends State<CopyCode> {
   final TextEditingController _controller = TextEditingController();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 

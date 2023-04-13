@@ -1,17 +1,38 @@
 import 'package:flutter/material.dart';
 
 class BaseButton extends StatefulWidget {
-  const BaseButton(String this.text {Key? key}) : super(key: key);
+  final String data;
+
+  final Widget child;
+
+  const BaseButton({Key? key, required this.data, required this.child}) : super(key: key);
 
   @override
   State<BaseButton> createState() => _BaseButtonState();
 }
 
 class _BaseButtonState extends State<BaseButton> {
+  late Widget _animatedButton;
 
-  Widget _animatedButton = const Text(text);
+  @override
+  void initState() {
+    _animatedButton = Text(widget.data);
+    super.initState();
+  }
+
   bool _buttonPressed = false;
 
+  void _onButtonPressed() {
+    setState(() {
+      _buttonPressed = !_buttonPressed;
+      if (_buttonPressed) {
+        _animatedButton = widget.child;
+      } else {
+        _animatedButton = Text(widget.data);
+      }
+    });
+  }
+  
   @override
   Widget build(BuildContext context) {
     return  GestureDetector(

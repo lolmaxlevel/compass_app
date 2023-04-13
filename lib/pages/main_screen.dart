@@ -1,6 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
 import 'package:compass_app/web_socket_worker.dart';
+import 'package:compass_app/widgets/base_button.dart';
 import 'package:compass_app/widgets/first_code.dart';
 import 'package:compass_app/widgets/paste_code_widget.dart';
 import 'package:flutter/foundation.dart';
@@ -43,7 +44,7 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _buttonPressed = !_buttonPressed;
       if (_buttonPressed) {
-        _animatedButton = const FirsCode();
+        _animatedButton = const CopyCode();
       } else {
         _animatedButton = const Text("copy the code");
       }
@@ -92,49 +93,9 @@ class _MainScreenState extends State<MainScreen> {
                   child: Column(
                     children: [
                       Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
-                      GestureDetector(
-                        onTap: _onButtonPressed,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 4/6,
-                          height: MediaQuery.of(context).size.height * 1/15,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            shape: BoxShape.rectangle,
-                            border: Border.all(
-                              width: 3,
-                            ),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Center(
-                            child: AnimatedSwitcher(
-                              duration: const Duration(seconds: 1),
-                              child: _animatedButton,
-                            ),
-                          ),
-                        ),
-                      ),
+                      const BaseButton(data: 'copy the code', child: CopyCode()),
                       const Text('or'),
-                      GestureDetector(
-                        onTap: _onButton2Pressed,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 4/6,
-                          height: MediaQuery.of(context).size.height * 1/15,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            shape: BoxShape.rectangle,
-                            border: Border.all(
-                              width: 3,
-                            ),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Center(
-                            child: AnimatedSwitcher(
-                              duration: const Duration(seconds: 1),
-                              child: _animatedButton2,
-                            ),
-                          ),
-                        ),
-                      ),
+                     const BaseButton(data: "paste the code", child: PasteCode()),
                       ElevatedButton(
                         onPressed: () => toggleTheme(),
                         style: ElevatedButton.styleFrom(
