@@ -2,7 +2,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
 import 'package:compass_app/web_socket_worker.dart';
 import 'package:compass_app/widgets/base_button.dart';
-import 'package:compass_app/widgets/first_code.dart';
+import 'package:compass_app/widgets/copy_code_widget.dart';
 import 'package:compass_app/widgets/paste_code_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +24,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  Widget _animatedButton = const Text("copy the code");
-  bool _buttonPressed = false;
-  Widget _animatedButton2 = const Text("paste the code");
-  bool _button2Pressed = false;
   bool flag = true;
   dynamic ws;
   String host = "";
@@ -40,26 +36,6 @@ class _MainScreenState extends State<MainScreen> {
   String speed = 'waiting...';
   String time = 'waiting...';
 
-  void _onButtonPressed() {
-    setState(() {
-      _buttonPressed = !_buttonPressed;
-      if (_buttonPressed) {
-        _animatedButton = const CopyCode();
-      } else {
-        _animatedButton = const Text("copy the code");
-      }
-    });
-  }
-  void _onButton2Pressed() {
-    setState(() {
-      _button2Pressed = !_button2Pressed;
-      if (_button2Pressed) {
-        _animatedButton2 = const PasteCode();
-      } else {
-        _animatedButton2 = const Text("paste the code");
-      }
-    });
-  }
 
   @override
   void initState() {

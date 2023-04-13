@@ -11,7 +11,6 @@ class CopyCode extends StatefulWidget {
   State<CopyCode> createState() => _CopyCodeState();
 }
 
-
 class _CopyCodeState extends State<CopyCode> {
   final TextEditingController _controller = TextEditingController();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();

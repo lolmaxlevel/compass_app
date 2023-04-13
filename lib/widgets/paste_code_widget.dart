@@ -48,9 +48,6 @@ class _PasteCodeState extends State<PasteCode> {
           keyboardType: TextInputType.number,
           animationType: AnimationType.scale,
           autoDismissKeyboard: true,
-          onTap: () {
-            _controller.text='112311';
-          },
           onChanged: (text) {
             if (kDebugMode) {
               print(text);
