@@ -49,12 +49,9 @@ class _MainScreenState extends State<MainScreen> {
       _buttonPressed = !_buttonPressed;
       if (_buttonPressed) {
         // генерируем случайное 6-значное число
-        _animatedButton = const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.0),
-          child: FirsCode(),
-        );
+        _animatedButton = const FirsCode();
       } else {
-        _animatedButton = Text("aboba");
+        _animatedButton = const Text("aboba");
       }
     });
   }
@@ -97,37 +94,13 @@ class _MainScreenState extends State<MainScreen> {
                   children: [
                     ElevatedButton(onPressed: flagInvert, child: Text(flag.toString())),
                     Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
-                    // PinCodeTextField(
-                    //     appContext: context,
-                    //     controller: _controller,
-                    //     length: 6,
-                    //     enabled: false,
-                    //     inputFormatters: [
-                    //       FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-                    //     ],
-                    //     keyboardType: TextInputType.number,
-                    //     onTap: () {
-                    //       Clipboard.setData(
-                    //           ClipboardData(text: _controller.text))
-                    //           .then((_){ScaffoldMessenger.of(context)
-                    //           .showSnackBar(
-                    //           const SnackBar(
-                    //             content: Text("Code copied to clipboard!"),
-                    //             duration: Duration(seconds: 1),
-                    //           ));
-                    //       });
-                    //     },
-                    //   onChanged: (String value) {
-                    //       if (kDebugMode) {
-                    //         print(value);
-                    //       }},),
                     GestureDetector(
                       onTap: _onButtonPressed,
                       child: Container(
                         width: MediaQuery.of(context).size.width * 4/6,
                         height: MediaQuery.of(context).size.height * 1/15,
                         decoration: BoxDecoration(
-                          color: Colors.transparent,
+                          // color: Colors.transparent,
                           shape: BoxShape.rectangle,
                           border: Border.all(
                             width: 3,
@@ -142,12 +115,18 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
+                    const Text('or'),
                     PinCodeTextField(
                         appContext: context,
                         length: 6,
                         useHapticFeedback: true,
                         hapticFeedbackTypes: HapticFeedbackTypes.light,
                         controller: _controller2,
+                        pinTheme: PinTheme(
+                            fieldWidth: 20,
+                            shape: PinCodeFieldShape.underline,
+                            activeColor: Colors.amberAccent
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                         ],
