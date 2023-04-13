@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
 import 'package:compass_app/web_socket_worker.dart';
+import 'package:compass_app/widgets/first_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +26,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  Widget _animatedButton = Text("copy the code");
   String _buttonText = "Нажми меня";
   bool _buttonPressed = false;
   bool flag = true;
@@ -47,10 +49,12 @@ class _MainScreenState extends State<MainScreen> {
       _buttonPressed = !_buttonPressed;
       if (_buttonPressed) {
         // генерируем случайное 6-значное число
-        Random random = Random();
-        _buttonText = random.nextInt(999999).toString().padLeft(6, '0');
+        _animatedButton = const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          child: FirsCode(),
+        );
       } else {
-        _buttonText = "Нажми меня";
+        _animatedButton = Text("aboba");
       }
     });
   }
@@ -89,50 +93,51 @@ class _MainScreenState extends State<MainScreen> {
             Scaffold(
               backgroundColor: Colors.transparent,
               body: Center(
-                child: ListView(
-                  children: <Widget>[
+                child: Column(
+                  children: [
                     ElevatedButton(onPressed: flagInvert, child: Text(flag.toString())),
                     Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 50.0),
-                      child: PinCodeTextField(
-                          appContext: context,
-                          controller: _controller,
-                          length: 6,
-                          enabled: false,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-                          ],
-                          keyboardType: TextInputType.number,
-                          onTap: () {
-                            Clipboard.setData(
-                                ClipboardData(text: _controller.text))
-                                .then((_){ScaffoldMessenger.of(context)
-                                .showSnackBar(
-                                const SnackBar(
-                                  content: Text("Code copied to clipboard!"),
-                                  duration: Duration(seconds: 1),
-                                ));
-                            });
-                          },
-                        onChanged: (String value) {
-                            if (kDebugMode) {
-                              print(value);
-                            }},),
-                    ),
+                    // PinCodeTextField(
+                    //     appContext: context,
+                    //     controller: _controller,
+                    //     length: 6,
+                    //     enabled: false,
+                    //     inputFormatters: [
+                    //       FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+                    //     ],
+                    //     keyboardType: TextInputType.number,
+                    //     onTap: () {
+                    //       Clipboard.setData(
+                    //           ClipboardData(text: _controller.text))
+                    //           .then((_){ScaffoldMessenger.of(context)
+                    //           .showSnackBar(
+                    //           const SnackBar(
+                    //             content: Text("Code copied to clipboard!"),
+                    //             duration: Duration(seconds: 1),
+                    //           ));
+                    //       });
+                    //     },
+                    //   onChanged: (String value) {
+                    //       if (kDebugMode) {
+                    //         print(value);
+                    //       }},),
                     GestureDetector(
                       onTap: _onButtonPressed,
                       child: Container(
-                        width: 200,
-                        height: 100,
+                        width: MediaQuery.of(context).size.width * 4/6,
+                        height: MediaQuery.of(context).size.height * 1/15,
                         decoration: BoxDecoration(
-                          color: Colors.blue,
+                          color: Colors.transparent,
                           shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            width: 3,
+                          ),
+                          borderRadius: BorderRadius.circular(50),
                         ),
                         child: Center(
-                          child: Text(
-                            _buttonText
+                          child: AnimatedSwitcher(
+                            duration: const Duration(seconds: 1),
+                            child: _animatedButton,
                           ),
                         ),
                       ),
@@ -186,7 +191,7 @@ class _MainScreenState extends State<MainScreen> {
                           builder: (context) => const Settings(),
                         ),
                       );
-                    }, child: Text('open settings'))
+                    }, child: Text('open settings')),
                   ],
                 ),
               ),
