@@ -48,7 +48,8 @@ class _CopyCodeState extends State<CopyCode> {
         onTap: () {
           Clipboard.setData(
               ClipboardData(text: _controller.text))
-              .then((_){ScaffoldMessenger.of(context)
+              .then((_){
+                ScaffoldMessenger.of(context)
               .showSnackBar(
               const SnackBar(
                 content: Text("Code copied to clipboard!"),

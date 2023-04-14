@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -15,19 +14,21 @@ class PasteCode extends StatefulWidget {
 class _PasteCodeState extends State<PasteCode> {
   final TextEditingController _controller = TextEditingController();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  //#TODO сделать сохранения кода
   @override
   void initState() {
     _prefs.then((SharedPreferences prefs) {
-      var id = prefs.getInt('id') ?? 0;
-      if (id == 0){
-        id = UniqueKey().hashCode % 1000000;
-      }
-      prefs.setInt('id', id);
-      _controller.text = id.toString();
+      var partnerId = prefs.getString('partner_id') ?? "";
+      _controller.text = partnerId.toString();
     });
     super.initState();
   }
+
+  Future<void> _setPartnerId(String s) async {
+    final SharedPreferences prefs = await _prefs;
+    final String partnerId = s;
+
+    prefs.setString('partner_id', partnerId);
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +49,16 @@ class _PasteCodeState extends State<PasteCode> {
           keyboardType: TextInputType.number,
           animationType: AnimationType.scale,
           autoDismissKeyboard: true,
+          onCompleted: (String s) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(
+                const SnackBar(
+                  content: Text("Code saved!"),
+                  duration: Duration(seconds: 1),
+                ));
+          },
           onChanged: (text) {
-            if (kDebugMode) {
-              print(text);
-            }
+            _setPartnerId(text);
           }),
     );
   }
