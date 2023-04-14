@@ -7,10 +7,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 class WebSocketWorker{
   var _socket;
 
-  WebSocketWorker(String url)
-      : _socket = WebSocketChannel.connect(
-      Uri.parse('ws://$url')
-  );
+  WebSocketWorker(String url){
+    _socket = WebSocketChannel.connect(
+        Uri.parse('ws://$url')
+        );
+  }
+
   void open(String url){
     _socket = WebSocketChannel.connect(
       Uri.parse('ws://$url')

@@ -28,12 +28,14 @@ class _MainScreenState extends State<MainScreen> {
   bool flag = true;
   dynamic ws;
   String host = "";
+  String id = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
     _prefs.then((SharedPreferences prefs) {
       host = prefs.getString('host') ?? "";
+      id = prefs.getString('id')??"";
     });
     super.initState();
   }
@@ -119,10 +121,11 @@ class _MainScreenState extends State<MainScreen> {
   }
   void startLocationService() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? host = prefs.getString('host');
-    // ws == null ? ws = WebSocketWorker(host!) : ws.open(host!);
+    host = prefs.getString('host')??"";
+    id = prefs.getString('id')??"";
+    ws == null ? ws = WebSocketWorker("$host/$id") : ws.open("$host/$id");
     if (kDebugMode) {
-      print("trying to connect $host");
+      print("trying to connect $host/$id");
     }
     await BackgroundLocation.setAndroidNotification(
       title: 'Background service is running',
@@ -144,20 +147,21 @@ class _MainScreenState extends State<MainScreen> {
                         Speed: ${location.speed.toString()}
                         Time: ${DateTime.now().toString()}
                       ''');
+
+        ws.send(Request(
+          prefs.getString('id')??"",
+          prefs.getString('partner_id')??"",
+          location.latitude.toString(),
+          location.longitude.toString(),
+          location.altitude.toString(),
+          location.accuracy.toString(),
+          location.bearing.toString(),
+          location.speed.toString(),
+          DateTime.now().toLocal().toString(),
+        ));
+
         return Future.delayed(const Duration(milliseconds: 100));
       });
-
-      // ws.send(Request(
-      //     '123',
-      //     location.latitude.toString(),
-      //     location.longitude.toString(),
-      //     location.altitude.toString(),
-      //     location.accuracy.toString(),
-      //     location.bearing.toString(),
-      //     location.speed.toString(),
-      //     DateTime.fromMillisecondsSinceEpoch(location.time as int).toString(),
-      // ));
-
     });
   }
   @override

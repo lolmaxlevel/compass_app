@@ -18,12 +18,12 @@ class _CopyCodeState extends State<CopyCode> {
   @override
   void initState() {
     _prefs.then((SharedPreferences prefs) {
-      var id = prefs.getInt('id') ?? 0;
-      if (id == 0){
-        id = UniqueKey().hashCode % 1000000;
+      var id = prefs.getString('id') ?? "";
+      if (id == ""){
+        id = (UniqueKey().hashCode % 1000000).toString();
       }
-      prefs.setInt('id', id);
-      _controller.text = id.toString();
+      prefs.setString('id', id);
+      _controller.text = id;
     });
     super.initState();
   }
