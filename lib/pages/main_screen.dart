@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:compass_app/pages/settings.dart';
 import '../models/server_io.dart';
-
+import 'package:mutex/mutex.dart';
 
 class MainScreen extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
@@ -24,18 +24,11 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  final lock = Mutex();
   bool flag = true;
   dynamic ws;
   String host = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  String latitude = 'waiting...';
-  String longitude = 'waiting...';
-  String altitude = 'waiting...';
-  String accuracy = 'waiting...';
-  String bearing = 'waiting...';
-  String speed = 'waiting...';
-  String time = 'waiting...';
-
 
   @override
   void initState() {
@@ -80,19 +73,14 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         child: const Text('Toggle Theme Mode'),
                       ),
-                      locationData('Latitude: $latitude'),
-                      locationData('Longitude: $longitude'),
-                      locationData('Altitude: $altitude'),
-                      locationData('Accuracy: $accuracy'),
-                      locationData('Bearing: $bearing'),
-                      locationData('Speed: $speed'),
-                      locationData('Time: $time'),
                       ElevatedButton(
                           onPressed: startLocationService,
                           child: Text('Start Location Service')),
                       ElevatedButton(
                           onPressed: () {
-                            ws.close();
+                            if (ws!=null){
+                              ws.close();
+                            }
                             BackgroundLocation.stopLocationService();
                           },
                           child: Text('Stop Location Service')),
@@ -113,21 +101,12 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget locationData(String data) {
-    return Text(
-      data,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 18,
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
   void flagInvert(){
     setState(() {
       flag = !flag;
     });
   }
+
   void toggleTheme(){
     if (AdaptiveTheme.of(context).mode.isDark)
     {
@@ -141,11 +120,11 @@ class _MainScreenState extends State<MainScreen> {
   void startLocationService() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? host = prefs.getString('host');
-    ws == null ? ws = WebSocketWorker(host!) : ws.open(host!);
+    // ws == null ? ws = WebSocketWorker(host!) : ws.open(host!);
     if (kDebugMode) {
       print("trying to connect $host");
-
-    }await BackgroundLocation.setAndroidNotification(
+    }
+    await BackgroundLocation.setAndroidNotification(
       title: 'Background service is running',
       message: 'Background location in progress',
       icon: '@mipmap/ic_launcher',
@@ -153,38 +132,32 @@ class _MainScreenState extends State<MainScreen> {
 
     await BackgroundLocation.setAndroidConfiguration(1000);
     await BackgroundLocation.startLocationService();
-
     BackgroundLocation.getLocationUpdates((location) {
-      ws.send(Request(
-          '123',
-          location.latitude.toString(),
-          location.longitude.toString(),
-          location.altitude.toString(),
-          location.accuracy.toString(),
-          location.bearing.toString(),
-          location.speed.toString(),
-          DateTime.fromMillisecondsSinceEpoch(location.time as int).toString(),
-      ));
-      setState(() {
-        latitude = location.latitude.toString();
-        longitude = location.longitude.toString();
-        accuracy = location.accuracy.toString();
-        altitude = location.altitude.toString();
-        bearing = location.bearing.toString();
-        speed = location.speed.toString();
-        time = DateTime.fromMillisecondsSinceEpoch(
-            location.time!.toInt())
-            .toString();
-      });
-      print('''\n
-                        Latitude:  $latitude
-                        Longitude: $longitude
-                        Altitude: $altitude
-                        Accuracy: $accuracy
-                        Bearing:  $bearing
-                        Speed: $speed
-                        Time: $time
+      if (lock.isLocked) return;
+
+      lock.protect(() {
+        print('''\n
+                        Latitude:  ${location.latitude.toString()}
+                        Longitude: ${location.longitude.toString()}
+                        Altitude: ${location.altitude.toString()}
+                        Accuracy: ${location.accuracy.toString()}
+                        Speed: ${location.speed.toString()}
+                        Time: ${DateTime.now().toString()}
                       ''');
+        return Future.delayed(const Duration(milliseconds: 100));
+      });
+
+      // ws.send(Request(
+      //     '123',
+      //     location.latitude.toString(),
+      //     location.longitude.toString(),
+      //     location.altitude.toString(),
+      //     location.accuracy.toString(),
+      //     location.bearing.toString(),
+      //     location.speed.toString(),
+      //     DateTime.fromMillisecondsSinceEpoch(location.time as int).toString(),
+      // ));
+
     });
   }
   @override

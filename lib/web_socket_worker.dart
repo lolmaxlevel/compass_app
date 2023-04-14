@@ -11,10 +11,15 @@ class WebSocketWorker{
       : _socket = WebSocketChannel.connect(
       Uri.parse('ws://$url')
   );
-
   void open(String url){
     _socket = WebSocketChannel.connect(
       Uri.parse('ws://$url')
+    );
+    _socket.stream.listen(
+        (data){
+          print(data);
+        },
+        onError: (error) => print(error),
     );
   }
 
