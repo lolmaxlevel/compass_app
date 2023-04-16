@@ -27,10 +27,12 @@ class MyApp extends StatelessWidget {
         light: ThemeData(
           colorScheme:
           const ColorScheme.light(),
+          primaryColor: const Color.fromARGB(255, 152, 152, 152),
         ),
         dark: ThemeData(
           colorScheme:
           const ColorScheme.dark(),
+          primaryColor: const Color.fromARGB(255, 119, 119, 119),
         ),
         initial: savedThemeMode ?? AdaptiveThemeMode.light,
         builder: (theme, darkTheme) => MaterialApp(

@@ -54,7 +54,7 @@ class _MainScreenState extends State<MainScreen> {
                      child: AnimatedOpacity(
                        opacity:  AdaptiveTheme.of(context).mode.isDark? 0.15 : 1,
                        duration: const Duration(milliseconds: 700),
-                       child: Image.asset("assets/img.png", fit: BoxFit.fill,),
+                       child: Image.asset("assets/background.png", fit: BoxFit.fill,),
                  )
                  )
             ),
@@ -64,7 +64,11 @@ class _MainScreenState extends State<MainScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      Image.asset(flag?'assets/heart.png':'assets/heart2.png'),
+                      Image.asset(flag?'assets/light/heart.png':'assets/light/heart-crossed.png',
+                        width: 100, height: 100, color: Theme.of(context).primaryColor,),
+                      ElevatedButton(onPressed: () {setState(() {
+                        flag = !flag;
+                      });}, child: Text('change heart')),
                       const BaseButton(data: 'copy the code', child: CopyCode()),
                       const Text('or'),
                      const BaseButton(data: "paste the code", child: PasteCode()),
