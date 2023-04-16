@@ -30,7 +30,8 @@ class _MainScreenState extends State<MainScreen> {
   String host = "";
   String id = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
+  late Widget heartImage = Image.asset('assets/heart/heart-crossed.png',
+    width: 100, height: 100, color: Theme.of(context).primaryColor,);
   @override
   void initState() {
     _prefs.then((SharedPreferences prefs) {
@@ -64,11 +65,15 @@ class _MainScreenState extends State<MainScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      Image.asset(flag?'assets/light/heart.png':'assets/light/heart-crossed.png',
-                        width: 100, height: 100, color: Theme.of(context).primaryColor,),
-                      ElevatedButton(onPressed: () {setState(() {
-                        flag = !flag;
-                      });}, child: Text('change heart')),
+                      GestureDetector(
+                        onTap: () {
+                          changeHeart();
+                        },
+                        child: AnimatedSwitcher(
+                          duration: const Duration(seconds: 1),
+                          child: heartImage,
+                      ),
+                      ),
                       const BaseButton(data: 'copy the code', child: CopyCode()),
                       const Text('or'),
                      const BaseButton(data: "paste the code", child: PasteCode()),
@@ -108,9 +113,11 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  void flagInvert(){
+  void changeHeart(){
     setState(() {
       flag = !flag;
+      heartImage = Image.asset(flag?'assets/heart/heart.png':'assets/heart/heart-crossed.png',
+        width: 100, height: 100, color: Theme.of(context).primaryColor,);
     });
   }
 
