@@ -46,6 +46,7 @@ class _MainScreenState extends State<MainScreen> {
       duration: const Duration(seconds: 1),
         data: Theme.of(context),
         child: Stack(
+
           children: [
             //Background Image
             Positioned.fill(
@@ -164,6 +165,7 @@ class _MainScreenState extends State<MainScreen> {
       });
     });
   }
+
   @override
   void dispose() {
     BackgroundLocation.stopLocationService();
