@@ -25,13 +25,12 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final lock = Mutex();
-  bool flag = true;
+  bool heart_clicked = true;
   dynamic ws;
   String host = "";
   String id = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  late Widget heartImage = Image.asset('assets/heart/heart-crossed.png',
-    width: 100, height: 100, color: Theme.of(context).primaryColor,);
+  late AssetImage heartImage = AssetImage('assets/heart/heart-crossed.png');
   @override
   void initState() {
     _prefs.then((SharedPreferences prefs) {
@@ -71,9 +70,11 @@ class _MainScreenState extends State<MainScreen> {
                         },
                         child: AnimatedSwitcher(
                           duration: const Duration(seconds: 1),
-                          child: heartImage,
+                          child: Image(image: heartImage,
+                            width: 200, height: 200, color: Theme.of(context).primaryColor,),
                       ),
                       ),
+
                       const BaseButton(data: 'copy the code', child: CopyCode()),
                       const Text('or'),
                      const BaseButton(data: "paste the code", child: PasteCode()),
@@ -115,9 +116,8 @@ class _MainScreenState extends State<MainScreen> {
 
   void changeHeart(){
     setState(() {
-      flag = !flag;
-      heartImage = Image.asset(flag?'assets/heart/heart.png':'assets/heart/heart-crossed.png',
-        width: 100, height: 100, color: Theme.of(context).primaryColor,);
+      heart_clicked = !heart_clicked;
+      heartImage = AssetImage(heart_clicked?'assets/heart/heart.png':'assets/heart/heart-crossed.png');
     });
   }
 
