@@ -25,12 +25,12 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final lock = Mutex();
-  bool heart_clicked = true;
+  bool heartClicked = true;
   dynamic ws;
   String host = "";
   String id = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  late AssetImage heartImage = AssetImage('assets/heart/heart-crossed.png');
+  late AssetImage heartImage = const AssetImage('assets/heart/heart-crossed.png');
   @override
   void initState() {
     _prefs.then((SharedPreferences prefs) {
@@ -71,7 +71,7 @@ class _MainScreenState extends State<MainScreen> {
                         child: AnimatedSwitcher(
                           duration: const Duration(seconds: 1),
                           child: Image(image: heartImage,
-                            width: 200, height: 200, color: Theme.of(context).primaryColor,),
+                            width: 100, height: 100, color: Theme.of(context).primaryColor,),
                       ),
                       ),
 
@@ -116,8 +116,8 @@ class _MainScreenState extends State<MainScreen> {
 
   void changeHeart(){
     setState(() {
-      heart_clicked = !heart_clicked;
-      heartImage = AssetImage(heart_clicked?'assets/heart/heart.png':'assets/heart/heart-crossed.png');
+      heartClicked = !heartClicked;
+      heartImage = AssetImage(heartClicked?'assets/heart/heart.png':'assets/heart/heart-crossed.png');
     });
   }
 
