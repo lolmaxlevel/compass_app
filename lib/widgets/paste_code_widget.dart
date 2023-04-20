@@ -41,6 +41,7 @@ class _PasteCodeState extends State<PasteCode> {
           hapticFeedbackTypes: HapticFeedbackTypes.light,
           controller: _controller,
           pinTheme: PinTheme(
+            fieldHeight: 45,
               fieldWidth: 20,
           ),
           inputFormatters: [

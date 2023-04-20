@@ -80,8 +80,11 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       Text(heartClicked?"sharing":"not sharing",
                         style: Theme.of(context).textTheme.bodyLarge,),
+                      Padding(padding: EdgeInsets.only(top: height*0.1)),
                       const BaseButton(data: 'copy the code', child: CopyCode()),
-                      const Text('or'),
+                      const Padding(padding: EdgeInsets.only(top: 10)),
+                      const Text('or', style: TextStyle(fontSize: 20),),
+                     const Padding(padding: EdgeInsets.only(top: 10)),
                      const BaseButton(data: "paste the code", child: PasteCode()),
                       ElevatedButton(
                         onPressed: () => toggleTheme(),
