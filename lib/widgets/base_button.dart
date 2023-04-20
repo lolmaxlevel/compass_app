@@ -16,7 +16,7 @@ class _BaseButtonState extends State<BaseButton> {
 
   @override
   void initState() {
-    _animatedButton = Text(widget.data);
+    _animatedButton = Text(widget.data, style: const TextStyle(fontSize: 20),);
     super.initState();
   }
 
@@ -44,6 +44,7 @@ class _BaseButtonState extends State<BaseButton> {
           color: Colors.transparent,
           shape: BoxShape.rectangle,
           border: Border.all(
+            color: Theme.of(context).primaryColor,
             width: 3,
           ),
           borderRadius: BorderRadius.circular(50),

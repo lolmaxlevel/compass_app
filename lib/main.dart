@@ -27,11 +27,21 @@ class MyApp extends StatelessWidget {
         light: ThemeData(
           colorScheme:
           const ColorScheme.light(),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Color.fromARGB(255, 152, 152, 152),  fontSize: 20),
+            bodyMedium: TextStyle(color: Color.fromARGB(255, 95, 95, 95))
+          ),
+          fontFamily: 'Lexend',
           primaryColor: const Color.fromARGB(255, 152, 152, 152),
         ),
         dark: ThemeData(
           colorScheme:
           const ColorScheme.dark(),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Color.fromARGB(255, 119, 119, 119), fontSize: 20),
+            bodyMedium: TextStyle(color: Color.fromARGB(255, 242, 242, 242))
+          ),
+          fontFamily: 'Lexend',
           primaryColor: const Color.fromARGB(255, 119, 119, 119),
         ),
         initial: savedThemeMode ?? AdaptiveThemeMode.light,

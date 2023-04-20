@@ -25,7 +25,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final lock = Mutex();
-  bool heartClicked = true;
+  bool heartClicked = false;
   dynamic ws;
   String host = "";
   String id = "";
@@ -42,6 +42,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
     return AnimatedTheme(
       duration: const Duration(seconds: 1),
         data: Theme.of(context),
@@ -64,6 +66,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: Center(
                   child: Column(
                     children: [
+                      Padding(padding: EdgeInsets.symmetric(vertical: height*0.05)),
                       GestureDetector(
                         onTap: () {
                           changeHeart();
@@ -71,10 +74,12 @@ class _MainScreenState extends State<MainScreen> {
                         child: AnimatedSwitcher(
                           duration: const Duration(seconds: 1),
                           child: Image(image: heartImage,
-                            width: 100, height: 100, color: Theme.of(context).primaryColor,),
+                            width: width*0.20,
+                            color: Theme.of(context).primaryColor,),
                       ),
                       ),
-
+                      Text(heartClicked?"sharing":"not sharing",
+                        style: Theme.of(context).textTheme.bodyLarge,),
                       const BaseButton(data: 'copy the code', child: CopyCode()),
                       const Text('or'),
                      const BaseButton(data: "paste the code", child: PasteCode()),
@@ -86,17 +91,6 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         child: const Text('Toggle Theme Mode'),
                       ),
-                      ElevatedButton(
-                          onPressed: startLocationService,
-                          child: Text('Start Location Service')),
-                      ElevatedButton(
-                          onPressed: () {
-                            if (ws!=null){
-                              ws.close();
-                            }
-                            BackgroundLocation.stopLocationService();
-                          },
-                          child: Text('Stop Location Service')),
                       ElevatedButton(onPressed: (){
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -115,9 +109,14 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void changeHeart(){
+    heartClicked ? stopLocation() : startLocationService();
     setState(() {
       heartClicked = !heartClicked;
-      heartImage = AssetImage(heartClicked?'assets/heart/heart.png':'assets/heart/heart-crossed.png');
+      heartImage = AssetImage(
+          !heartClicked
+          ?'assets/heart/heart-crossed.png'
+          :'assets/heart/heart.png'
+      );
     });
   }
 
@@ -175,6 +174,12 @@ class _MainScreenState extends State<MainScreen> {
         return Future.delayed(const Duration(milliseconds: 100));
       });
     });
+  }
+  void stopLocation(){
+    if (ws!=null){
+      ws.close();
+    }
+    BackgroundLocation.stopLocationService();
   }
 
   @override
