@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:compass_app/models/server_io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -34,6 +33,15 @@ class WebSocketWorker{
   void send(Request request){
     _socket.sink.add(
       jsonEncode(request)
+    );
+  }
+
+  void listen(void Function(dynamic) onData, {Function? onError, void Function()? onDone, bool? cancelOnError}){
+    _socket.stream.listen(
+      onData,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError
     );
   }
 }
