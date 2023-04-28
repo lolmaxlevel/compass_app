@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
-import 'package:compass_app/web_socket_worker.dart';
 import 'package:compass_app/widgets/base_button.dart';
 import 'package:compass_app/widgets/copy_code_widget.dart';
 import 'package:compass_app/widgets/paste_code_widget.dart';
@@ -10,7 +9,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:compass_app/pages/settings.dart';
-import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/server_io.dart';
 import 'package:mutex/mutex.dart';
@@ -189,14 +187,13 @@ class _MainScreenState extends State<MainScreen> {
   }
   void startLocationService() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (kDebugMode) {
-      print("trying to connect $host/$id");
-    }
+
     BackgroundLocation.setAndroidNotification(
       title: 'Background service is running',
       message: 'Background location in progress',
-      icon: '@mipmap/ic_launcher.png',
+      icon: '@mipmap-hdpi/ic_launcher.png',
     );
+
     await BackgroundLocation.setAndroidConfiguration(1000);
     await BackgroundLocation.startLocationService();
 
@@ -224,8 +221,7 @@ class _MainScreenState extends State<MainScreen> {
           location.accuracy.toString(),
           location.bearing.toString(),
           location.speed.toString(),
-          DateTime.now().microsecondsSinceEpoch.toString(),
-        )
+          DateTime.now().microsecondsSinceEpoch.toString(),)
         );
 
         return Future.delayed(const Duration(milliseconds: 100));
