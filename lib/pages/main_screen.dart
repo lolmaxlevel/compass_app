@@ -57,12 +57,18 @@ class _MainScreenState extends State<MainScreen> {
     }
     channel = WebSocketChannel.connect(Uri.parse('ws://$host'));
     channelSubscription = channel.stream.listen((message) {
-      print('Received: $message');
+      if (kDebugMode) {
+        print('Received: $message');
+      }
     }, onError: (error) {
-      print('Error while receiving');
+      if (kDebugMode) {
+        print('Error while receiving');
+      }
       reconnect();
     }, onDone: () {
-      print('Done');
+      if (kDebugMode) {
+        print('Done');
+      }
     });
     setState(() {
       isServerConnected = true;
@@ -70,7 +76,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void reconnect() {
-    print('Reconnecting...');
+    if (kDebugMode) {
+      print('Reconnecting...');
+    }
     setState(() {
       isServerConnected = false;
     });
@@ -120,7 +128,7 @@ class _MainScreenState extends State<MainScreen> {
                       const BaseButton(data: "paste the code", child: PasteCode()),
                       Text(location),
                       ElevatedButton(
-                        onPressed: () => toggleTheme(),
+                        onPressed: toggleTheme,
                         style: ElevatedButton.styleFrom(
                           visualDensity:
                           const VisualDensity(horizontal: 4, vertical: 2),
