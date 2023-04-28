@@ -12,6 +12,7 @@ import 'package:compass_app/pages/settings.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/server_io.dart';
 import 'package:mutex/mutex.dart';
+import 'package:flutter_animator/flutter_animator.dart';
 
 class MainScreen extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
@@ -34,9 +35,9 @@ class _MainScreenState extends State<MainScreen> {
   String host = "";
   String id = "";
   String location = "";
-  bool initialized = false;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late AssetImage heartImage = const AssetImage('assets/heart/heart-crossed.png');
+  final GlobalKey<AnimatorWidgetState> _key = GlobalKey<AnimatorWidgetState>();
 
   @override
   void initState() {
@@ -46,7 +47,6 @@ class _MainScreenState extends State<MainScreen> {
     });
     connect();
     super.initState();
-    initialized = true;
   }
 
   void connect() async {
@@ -65,7 +65,6 @@ class _MainScreenState extends State<MainScreen> {
       reconnect();
     }, onDone: () {
       print('Done');
-      reconnect();
     });
     setState(() {
       isServerConnected = true;
@@ -115,14 +114,26 @@ class _MainScreenState extends State<MainScreen> {
                       Padding(padding: EdgeInsets.symmetric(vertical: height*0.05)),
                       GestureDetector(
                         onTap: () {
-                          changeHeart();
+                          toggleLocation();
                         },
-                        child: AnimatedSwitcher(
-                          duration: const Duration(seconds: 1),
-                          child: Image(image: heartImage,
-                            width: width*0.20,
-                            color: Theme.of(context).primaryColor,),
-                      ),
+                        child: SizedBox.fromSize(
+                          size: Size.square(width*0.20),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(seconds: 1),
+                            child: HeartBeat(
+                              key: _key,
+                              preferences: const AnimationPreferences(
+                                autoPlay: AnimationPlayStates.None,
+                                duration: Duration(milliseconds: 1800),
+                                offset: Duration(milliseconds: 0),
+                                magnitude: 0.5,
+                              ),
+                              child: Image(image: heartImage,
+                                width: width*0.20,
+                                color: Theme.of(context).primaryColor,),
+                            ),
+                          ),
+                        ),
                       ),
                       Text(heartClicked?"sharing":"not sharing",
                         style: Theme.of(context).textTheme.bodyLarge,),
@@ -168,9 +179,16 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  void changeHeart(){
-    heartClicked ? stopLocation() : startLocationService();
-    setState(() {
+  void toggleLocation(){
+    if (heartClicked) {
+      stopLocation();
+      _key.currentState?.reset();
+    } else {
+      startLocationService();
+      _key.currentState?.loop();
+    }
+    setState(()
+     {
       heartClicked = !heartClicked;
       heartImage = AssetImage(
           !heartClicked
