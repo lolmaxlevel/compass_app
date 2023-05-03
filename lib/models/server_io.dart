@@ -64,14 +64,13 @@ class LocationRequest extends Request {
 
 class HandShakeRequest extends Request{
   final String id;
-  final String partnerId;
 
-  HandShakeRequest(this.id, this.partnerId);
+  HandShakeRequest(this.id);
 
 
+  @override
   Map<String, dynamic> toJson() => {
     'type':       "Handshake",
     'id':         id,
-    'partner_id': partnerId,
   };
 }

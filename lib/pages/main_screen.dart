@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_location/background_location.dart';
@@ -42,24 +43,18 @@ class _MainScreenState extends State<MainScreen> {
     _prefs.then((SharedPreferences prefs) {
       host = prefs.getString('host') ?? "localhost:9000";
       id = prefs.getString('id')??"";
-      print(id);
+      if (id == ""){
+        id = (UniqueKey().hashCode % 1000000).toString();
+      }
+      prefs.setString('id', id);
     });
     connect();
     super.initState();
   }
 
   void connect() async {
-    _prefs.then((SharedPreferences prefs) {
-      host = prefs.getString('host') ?? "localhost:9000";
-    });
-    if (host == " ") {
-      reconnect();
-      return;
-    }
-    // #TODO add "handshake"
-    channel = WebSocketChannel.connect(Uri.parse('ws://$host'));
-    var prefs = await SharedPreferences.getInstance();
-    sendMessage(HandShakeRequest(id, prefs.getString('partner_id')??""));
+    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.0.106:9000'));
+    print('sending handshake request');
     channelSubscription = channel.stream.listen((message) {
       if (kDebugMode) {
         print('Received: $message');
@@ -72,11 +67,16 @@ class _MainScreenState extends State<MainScreen> {
     }, onDone: () {
       if (kDebugMode) {
         print('Done');
+        reconnect();
       }
     });
     setState(() {
       isServerConnected = true;
     });
+    if (kDebugMode) {
+      print('sending handshake request');
+    }
+    sendMessage(HandShakeRequest(id));
   }
 
   void reconnect() {
@@ -92,7 +92,8 @@ class _MainScreenState extends State<MainScreen> {
   }
   void sendMessage(Request request) {
     if (isServerConnected) {
-      channel.sink.add(request);
+      print(jsonEncode(request));
+      channel.sink.add(jsonEncode(request));
     }
   }
 
