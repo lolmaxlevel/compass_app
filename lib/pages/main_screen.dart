@@ -40,8 +40,9 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     _prefs.then((SharedPreferences prefs) {
-      host = prefs.getString('host') ?? "";
+      host = prefs.getString('host') ?? "localhost:9000";
       id = prefs.getString('id')??"";
+      print(id);
     });
     connect();
     super.initState();
@@ -49,13 +50,16 @@ class _MainScreenState extends State<MainScreen> {
 
   void connect() async {
     _prefs.then((SharedPreferences prefs) {
-      host = prefs.getString('host') ?? "";
+      host = prefs.getString('host') ?? "localhost:9000";
     });
-    if (host == "") {
+    if (host == " ") {
       reconnect();
       return;
     }
+    // #TODO add "handshake"
     channel = WebSocketChannel.connect(Uri.parse('ws://$host'));
+    var prefs = await SharedPreferences.getInstance();
+    sendMessage(HandShakeRequest(id, prefs.getString('partner_id')??""));
     channelSubscription = channel.stream.listen((message) {
       if (kDebugMode) {
         print('Received: $message');
@@ -180,7 +184,7 @@ class _MainScreenState extends State<MainScreen> {
     BackgroundLocation.setAndroidNotification(
       title: 'Background service is running',
       message: 'Background location in progress',
-      icon: '@mipmap-hdpi/ic_launcher.png',
+      icon: '@mipmap-hdpi/ic_monochrome.png',
     );
 
     await BackgroundLocation.setAndroidConfiguration(1000);
@@ -201,16 +205,17 @@ class _MainScreenState extends State<MainScreen> {
         }
 
         sendMessage(
-            Request(
-          prefs.getString('id')??"",
-          prefs.getString('partner_id')??"",
-          location.latitude.toString(),
-          location.longitude.toString(),
-          location.altitude.toString(),
-          location.accuracy.toString(),
-          location.bearing.toString(),
-          location.speed.toString(),
-          DateTime.now().microsecondsSinceEpoch.toString(),)
+            LocationRequest(
+              "location",
+              prefs.getString('id')??"",
+              prefs.getString('partner_id')??"",
+              location.latitude.toString(),
+              location.longitude.toString(),
+              location.altitude.toString(),
+              location.accuracy.toString(),
+              location.bearing.toString(),
+              location.speed.toString(),
+              DateTime.now().microsecondsSinceEpoch.toString(),)
         );
 
         return Future.delayed(const Duration(milliseconds: 100));

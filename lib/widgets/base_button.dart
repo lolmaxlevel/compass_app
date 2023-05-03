@@ -28,7 +28,7 @@ class _BaseButtonState extends State<BaseButton> {
       if (_buttonPressed) {
         _animatedButton = widget.child;
       } else {
-        _animatedButton = Text(widget.data);
+        _animatedButton = Text(widget.data,style: const TextStyle(fontSize: 20),);
       }
     });
   }
