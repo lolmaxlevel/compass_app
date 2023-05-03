@@ -1,16 +1,14 @@
-# compass_app
+# Compass App
 
-App for Compass project
+Multiplatform app for compass project using Flutter with websocket and bluetooth modules.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## Currently WIP
+preview of app:
+<video src='https://user-images.githubusercontent.com/50590135/235178677-73e02a8a-546c-45ff-a05c-6697c7a57c55.webm' width=250/>
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### TODOs
+- [ ] add the ability to connect to the compass via Bluetooth
+- [ ] add sync with compass if connected
+- [ ] add better processing when the server is unavailable
+- [ ] add settings and remove debug buttons
