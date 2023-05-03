@@ -53,8 +53,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void connect() async {
-    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.0.106:9000'));
-    print('sending handshake request');
+    channel = WebSocketChannel.connect(
+        Uri.parse('ws://192.168.0.106:9000'),
+    );
     channelSubscription = channel.stream.listen((message) {
       if (kDebugMode) {
         print('Received: $message');
@@ -70,13 +71,27 @@ class _MainScreenState extends State<MainScreen> {
         reconnect();
       }
     });
-    setState(() {
-      isServerConnected = true;
+    channel.ready.then((value) {
+      setState(() {
+        isServerConnected = true;
+      });
+      sendMessage(HandShakeRequest(id));
     });
-    if (kDebugMode) {
-      print('sending handshake request');
-    }
-    sendMessage(HandShakeRequest(id));
+
+    Timer(const Duration(seconds: 5), () {
+      if (isServerConnected) {
+        if (kDebugMode) {
+          print('Connected');
+        }
+      }
+      else {
+        if (kDebugMode) {
+          print('Not connected');
+          reconnect();
+        }
+      }
+    });
+
   }
 
   void reconnect() {
@@ -92,7 +107,9 @@ class _MainScreenState extends State<MainScreen> {
   }
   void sendMessage(Request request) {
     if (isServerConnected) {
-      print(jsonEncode(request));
+      if (kDebugMode) {
+        print("sending ${jsonEncode(request)}");
+      }
       channel.sink.add(jsonEncode(request));
     }
   }
