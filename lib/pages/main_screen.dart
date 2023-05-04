@@ -11,9 +11,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:compass_app/pages/settings.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/server_io.dart';
 import 'package:mutex/mutex.dart';
+import 'package:web_socket_client/web_socket_client.dart';
 
 class MainScreen extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
@@ -30,13 +30,13 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final lock = Mutex();
   bool heartClicked = false;
-  late WebSocketChannel channel;
   bool isServerConnected = false;
   late StreamSubscription channelSubscription;
   String host = "";
   String id = "";
   String location = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  late final WebSocket socket;
 
   @override
   void initState() {
@@ -48,75 +48,54 @@ class _MainScreenState extends State<MainScreen> {
       }
       prefs.setString('id', id);
     });
-    connect();
+    socket = WebSocket(
+        Uri.parse('ws://192.168.0.106:9000'),
+        timeout: const Duration(seconds: 5),
+        backoff: const ConstantBackoff(Duration(seconds: 5))
+    );
+    socket.connection.listen((state) {
+      if (state == const Connecting() || state == const Reconnecting()){
+        if (kDebugMode) {
+          print("connecting");
+        }
+        setState(() {
+          isServerConnected = false;
+        });
+
+      }
+      if (state == const Connected() || state == const Reconnected()){
+        if (kDebugMode) {
+          print("connected");
+        }
+        setState(() {
+          isServerConnected = true;
+        });
+      }
+      if (state == const Disconnected()){
+        if (kDebugMode) {
+          print("disconnected");
+        }
+        setState(() {
+          isServerConnected = false;
+        });
+      }
+    });
     super.initState();
   }
 
-  void connect() async {
-    channel = WebSocketChannel.connect(
-        Uri.parse('ws://192.168.0.106:9000'),
-    );
-    channelSubscription = channel.stream.listen((message) {
-      if (kDebugMode) {
-        print('Received: $message');
-      }
-    }, onError: (error) {
-      if (kDebugMode) {
-        print('Error while receiving');
-      }
-      isServerConnected?reconnect():null;
-    }, onDone: () {
-      if (kDebugMode) {
-        print('Done');
-      }
-      isServerConnected?reconnect():null;
-    });
-    channel.ready.then((value) {
-      setState(() {
-        isServerConnected = true;
-      });
-      sendMessage(HandShakeRequest(id));
-    });
-
-    Timer(const Duration(seconds: 5), () {
-      if (isServerConnected) {
-        if (kDebugMode) {
-          print('Connected');
-        }
-      }
-      else {
-        if (kDebugMode) {
-          print('Not connected');
-          reconnect();
-        }
-      }
-    });
-
-  }
-
-  void reconnect() {
-    if (kDebugMode) {
-      print('Reconnecting...');
-    }
-    setState(() {
-      isServerConnected = false;
-    });
-    Timer(const Duration(seconds: 5), () {
-      connect();
-    });
-  }
   void sendMessage(Request request) {
     if (isServerConnected) {
       if (kDebugMode) {
         print("sending ${jsonEncode(request)}");
       }
-      channel.sink.add(jsonEncode(request));
+      socket.send(jsonEncode(request));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(
       duration: const Duration(seconds: 1),
         data: Theme.of(context),
@@ -160,13 +139,16 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         child: const Text('Toggle Theme Mode'),
                       ),
-                      ElevatedButton(onPressed: (){
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const Settings(),
-                          ),
-                        );
-                        }, child: const Text('open settings')),
+                      GestureDetector(
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings())),
+                          child: Image.asset(
+                              'assets/icons/settings.png',
+                              width: width * 0.12,
+                              height: width * 0.12,
+                              color: Theme.of(context).textTheme.bodyLarge!.color,
+                              semanticLabel: 'settings'
+                          )
+                      ),
                     ],
                   ),
                 ),
