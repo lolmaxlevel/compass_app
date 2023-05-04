@@ -179,11 +179,7 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void toggleTheme(){
-    AdaptiveTheme.of(context).mode.isDark
-        ? AdaptiveTheme.of(context).setLight()
-        : AdaptiveTheme.of(context).setDark();
-  }
+
   void startLocationService() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 

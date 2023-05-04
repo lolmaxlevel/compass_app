@@ -21,40 +21,38 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(seconds: 1),
-      child: AdaptiveTheme(
-        light: ThemeData(
-          textTheme: const TextTheme(
-            bodyLarge: TextStyle(color: Color.fromARGB(255, 152, 152, 152),  fontSize: 20),
-            bodyMedium: TextStyle(color: Color.fromARGB(255, 95, 95, 95))
-          ),
-          fontFamily: 'Lexend',
-          primaryColor: const Color.fromARGB(255, 152, 152, 152), colorScheme:
+    return AdaptiveTheme(
+      light: ThemeData(
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Color.fromARGB(255, 152, 152, 152),  fontSize: 20),
+          bodyMedium: TextStyle(color: Color.fromARGB(255, 95, 95, 95))
+        ),
+        fontFamily: 'Lexend',
+        primaryColor: const Color.fromARGB(255, 152, 152, 152),
+        colorScheme:
         const ColorScheme.light(
           background: Color.fromARGB(255, 242, 242, 242),
-        ),
+      ),
 
+      ),
+      dark: ThemeData(
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Color.fromARGB(255, 119, 119, 119), fontSize: 20),
+          bodyMedium: TextStyle(color: Color.fromARGB(255, 242, 242, 242))
         ),
-        dark: ThemeData(
-          textTheme: const TextTheme(
-            bodyLarge: TextStyle(color: Color.fromARGB(255, 119, 119, 119), fontSize: 20),
-            bodyMedium: TextStyle(color: Color.fromARGB(255, 242, 242, 242))
-          ),
-          fontFamily: 'Lexend',
-          primaryColor: const Color.fromARGB(255, 119, 119, 119), colorScheme:
+        fontFamily: 'Lexend',
+        primaryColor: const Color.fromARGB(255, 119, 119, 119),
+        colorScheme:
         const ColorScheme.dark(
-            background: Color.fromARGB(255, 39, 39, 39),
-
+          background: Color.fromARGB(255, 39, 39, 39),
         ),
-        ),
-        initial: savedThemeMode ?? AdaptiveThemeMode.light,
-        builder: (theme, darkTheme) => MaterialApp(
-          theme: theme,
-          darkTheme: darkTheme,
-          home: const MainScreen(),
-        ),
-      )
+      ),
+      initial: savedThemeMode ?? AdaptiveThemeMode.light,
+      builder: (theme, darkTheme) => MaterialApp(
+        theme: theme,
+        darkTheme: darkTheme,
+        home: const MainScreen(),
+      ),
     );
   }
 }
