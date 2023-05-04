@@ -31,7 +31,6 @@ class _MainScreenState extends State<MainScreen> {
   final lock = Mutex();
   bool heartClicked = false;
   bool isServerConnected = false;
-  String host = "";
   String id = "";
   String location = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -40,7 +39,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     _prefs.then((SharedPreferences prefs) {
-      host = prefs.getString('host') ?? "localhost:9000";
       id = prefs.getString('id')??"";
       if (id == ""){
         id = (UniqueKey().hashCode % 1000000).toString();
