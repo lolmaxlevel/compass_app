@@ -1,6 +1,8 @@
 # Compass App
 
-Multiplatform app for compass project using Flutter with websocket and bluetooth modules.
+### Description
+This is a simple compass app that uses the phone's GPS to get the user's location and send it to a physical compass, which then points to the user's location. Mainly made for couples who want to know where their partner is at all times.
+
 
 
 ## Currently WIP
@@ -12,3 +14,4 @@ preview of app:
 - [ ] add sync with compass if connected
 - [ ] add better processing when the server is unavailable
 - [ ] add settings and remove debug buttons
+- [ ] change geolocation framework to something more reliable
