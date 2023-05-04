@@ -48,11 +48,18 @@ class _MainScreenState extends State<MainScreen> {
       }
       prefs.setString('id', id);
     });
+    connectToServer();
+    super.initState();
+  }
+  void connectToServer(){
     socket = WebSocket(
         Uri.parse('ws://192.168.0.106:9000'),
         timeout: const Duration(seconds: 5),
         backoff: const ConstantBackoff(Duration(seconds: 5))
     );
+    socket.messages.listen((message) {
+      print(message);
+    });
     socket.connection.listen((state) {
       if (state == const Connecting() || state == const Reconnecting()){
         if (kDebugMode) {
@@ -67,6 +74,7 @@ class _MainScreenState extends State<MainScreen> {
         if (kDebugMode) {
           print("connected");
         }
+        sendMessage(HandShakeRequest(id));
         setState(() {
           isServerConnected = true;
         });
@@ -80,9 +88,7 @@ class _MainScreenState extends State<MainScreen> {
         });
       }
     });
-    super.initState();
   }
-
   void sendMessage(Request request) {
     if (isServerConnected) {
       if (kDebugMode) {
@@ -108,7 +114,7 @@ class _MainScreenState extends State<MainScreen> {
                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.background),
                        child: AnimatedOpacity(
                          opacity:  AdaptiveTheme.of(context).mode.isDark? 0.2 : 1,
-                         duration: const Duration(milliseconds: 700),
+                         duration: const Duration(milliseconds: 500),
                          child: Image.asset("assets/background.png", fit: BoxFit.fill),
                  ),
                      ),
