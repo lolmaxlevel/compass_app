@@ -64,12 +64,12 @@ class _MainScreenState extends State<MainScreen> {
       if (kDebugMode) {
         print('Error while receiving');
       }
-      reconnect();
+      isServerConnected?reconnect():null;
     }, onDone: () {
       if (kDebugMode) {
         print('Done');
-        reconnect();
       }
+      isServerConnected?reconnect():null;
     });
     channel.ready.then((value) {
       setState(() {
@@ -125,11 +125,14 @@ class _MainScreenState extends State<MainScreen> {
             //Background Image
             Positioned.fill(
                  child: SizedBox(
-                     child: AnimatedOpacity(
-                       opacity:  AdaptiveTheme.of(context).mode.isDark? 0.15 : 1,
-                       duration: const Duration(milliseconds: 700),
-                       child: Image.asset("assets/background.png", fit: BoxFit.fill,),
-                 )
+                     child: Container(
+                       decoration: BoxDecoration(color: Theme.of(context).colorScheme.background),
+                       child: AnimatedOpacity(
+                         opacity:  AdaptiveTheme.of(context).mode.isDark? 0.2 : 1,
+                         duration: const Duration(milliseconds: 700),
+                         child: Image.asset("assets/background.png", fit: BoxFit.fill),
+                 ),
+                     ),
                  )
             ),
             Scaffold(
