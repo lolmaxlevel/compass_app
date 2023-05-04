@@ -31,7 +31,6 @@ class _MainScreenState extends State<MainScreen> {
   final lock = Mutex();
   bool heartClicked = false;
   bool isServerConnected = false;
-  late StreamSubscription channelSubscription;
   String host = "";
   String id = "";
   String location = "";
@@ -100,7 +99,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(
       duration: const Duration(seconds: 1),
@@ -137,23 +136,23 @@ class _MainScreenState extends State<MainScreen> {
                       const Padding(padding: EdgeInsets.only(top: 10)),
                       const BaseButton(data: "paste the code", child: PasteCode()),
                       Text(location),
-                      ElevatedButton(
-                        onPressed: toggleTheme,
-                        style: ElevatedButton.styleFrom(
-                          visualDensity:
-                          const VisualDensity(horizontal: 4, vertical: 2),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: EdgeInsets.only(bottom: height*0.12),
+                            child: GestureDetector(
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings())),
+                                child: Image.asset(
+                                    'assets/icons/settings.png',
+                                    width: width * 0.12,
+                                    height: width * 0.12,
+                                    color: Theme.of(context).textTheme.bodyLarge!.color,
+                                    semanticLabel: 'settings'
+                                )
+                            ),
+                          ),
                         ),
-                        child: const Text('Toggle Theme Mode'),
-                      ),
-                      GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings())),
-                          child: Image.asset(
-                              'assets/icons/settings.png',
-                              width: width * 0.12,
-                              height: width * 0.12,
-                              color: Theme.of(context).textTheme.bodyLarge!.color,
-                              semanticLabel: 'settings'
-                          )
                       ),
                     ],
                   ),

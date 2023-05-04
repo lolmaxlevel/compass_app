@@ -13,7 +13,6 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late Future<String> _host;
-  late Future<int> _pooling_rate;
   late TextEditingController _controller;
 
   Future<void> _setHost(String s) async {
