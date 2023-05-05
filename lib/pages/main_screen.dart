@@ -25,10 +25,10 @@ class MainScreen extends StatefulWidget {
   });
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   final lock = Mutex();
   bool heartClicked = false;
   bool isServerConnected = false;
@@ -99,6 +99,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
+    print(height);
     final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(
       duration: const Duration(seconds: 1),
@@ -112,7 +113,7 @@ class _MainScreenState extends State<MainScreen> {
                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.background),
                        child: AnimatedOpacity(
                          opacity:  AdaptiveTheme.of(context).mode.isDark? 0.2 : 1,
-                         duration: const Duration(milliseconds: 500),
+                         duration: const Duration(milliseconds: 700),
                          child: Image.asset("assets/background.png", fit: BoxFit.fill),
                  ),
                      ),
@@ -124,7 +125,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      Padding(padding: EdgeInsets.symmetric(vertical: height*0.05)),
+                      Padding(padding: EdgeInsets.symmetric(vertical: height*0.10)),
                       AnimatedHeart(onPressed: toggleLocation),
                       AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
@@ -159,12 +160,15 @@ class _MainScreenState extends State<MainScreen> {
                                         child: const Settings()
                                     )
                                 ),
-                                child: Image.asset(
-                                    'assets/icons/settings.png',
-                                    width: width * 0.12,
-                                    height: width * 0.12,
-                                    color: Theme.of(context).textTheme.bodyLarge!.color,
-                                    semanticLabel: 'settings'
+                                child: Tooltip(
+                                  message: 'open settings',
+                                  child: Image.asset(
+                                      'assets/icons/settings.png',
+                                      width: width * 0.12,
+                                      height: width * 0.12,
+                                      color: Theme.of(context).textTheme.bodyLarge!.color,
+                                      semanticLabel: 'settings'
+                                  ),
                                 )
                             ),
                           ),
