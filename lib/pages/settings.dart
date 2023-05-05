@@ -10,19 +10,14 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  late String themeIcon;
 
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
   Widget build(BuildContext context) {
-    AdaptiveTheme.of(context).mode.isDark
-        ? themeIcon = "assets/icons/darkTheme.png"
-        : themeIcon = "assets/icons/lightTheme.png";
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(
@@ -68,11 +63,13 @@ class _SettingsState extends State<Settings> {
                       switchInCurve: Curves.elasticOut,
                       duration: const Duration(milliseconds: 2000),
                       child: Image.asset(
-                        themeIcon,
+                        AdaptiveTheme.of(context).mode.isDark
+                            ? "assets/icons/darkTheme.png"
+                            : "assets/icons/lightTheme.png",
                         height: width * 0.21,
                         width: width * 0.21,
                         color: Theme.of(context).primaryColor,
-                        key: ValueKey<String>(themeIcon),
+                        key: ValueKey<bool>(AdaptiveTheme.of(context).mode.isDark),
                       )
                   ),
                   BaseButton(data: "toggle Theme", onTap: toggleTheme),
@@ -91,17 +88,8 @@ class _SettingsState extends State<Settings> {
   }
 
   void toggleTheme() {
-    if(AdaptiveTheme.of(context).mode.isDark){
-      AdaptiveTheme.of(context).setLight();
-      setState(() {
-        themeIcon = "assets/icons/lightTheme.png";
-      });
-    }
-    else {
-      AdaptiveTheme.of(context).setDark();
-      setState(() {
-        themeIcon = "assets/icons/darkTheme.png";
-      });
+    AdaptiveTheme.of(context).mode.isDark
+        ? AdaptiveTheme.of(context).setLight()
+        : AdaptiveTheme.of(context).setDark();
     }
   }
-}
