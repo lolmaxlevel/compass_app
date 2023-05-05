@@ -13,9 +13,11 @@ class AnimatedHeart extends StatefulWidget {
 }
 
 class _AnimatedHeartState extends State<AnimatedHeart> {
-  late AssetImage heartImage = const AssetImage('assets/heart/heart-crossed.png');
+
+  String heartImage = 'assets/heart/heart-crossed.png';
   final GlobalKey<AnimatorWidgetState> _key = GlobalKey<AnimatorWidgetState>();
   bool heartClicked = false;
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -25,19 +27,19 @@ class _AnimatedHeartState extends State<AnimatedHeart> {
       },
       child: SizedBox.fromSize(
         size: Size.square(width*0.20),
-        child: AnimatedSwitcher(
-          duration: const Duration(seconds: 1),
-          child: HeartBeat(
-            key: _key,
-            preferences: const AnimationPreferences(
-              autoPlay: AnimationPlayStates.None,
-              duration: Duration(milliseconds: 1800),
-              offset: Duration(milliseconds: 0),
-              magnitude: 0.5,
-            ),
-            child: Image(image: heartImage,
-              width: width*0.20,
-              color: Theme.of(context).primaryColor,),
+        child: HeartBeat(
+          key: _key,
+          preferences: const AnimationPreferences(
+            autoPlay: AnimationPlayStates.None,
+            duration: Duration(milliseconds: 1800),
+            offset: Duration(milliseconds: 0),
+            magnitude: 0.5,
+          ),
+          child: Image.asset(
+            heartImage,
+            width: width*0.20,
+            color: Theme.of(context).primaryColor,
+            key: ValueKey<String>(heartImage),
           ),
         ),
       ),
@@ -54,11 +56,9 @@ class _AnimatedHeartState extends State<AnimatedHeart> {
     setState(()
     {
       heartClicked = !heartClicked;
-      heartImage = AssetImage(
-          !heartClicked
-              ?'assets/heart/heart-crossed.png'
-              :'assets/heart/heart.png'
-      );
+      heartImage = !heartClicked
+          ?'assets/heart/heart-crossed.png'
+          :'assets/heart/heart.png';
     });
   }
 }

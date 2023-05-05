@@ -10,6 +10,8 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  String themeIcon = "assets/icons/lightTheme.png";
+
   @override
   void initState() {
     super.initState();
@@ -49,13 +51,28 @@ class _SettingsState extends State<Settings> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    "assets/icons/themeChangeIcon.png",
-                    height: width * 0.21,
-                    width: width * 0.21,
-                    color: Theme.of(context).primaryColor,
+                  AnimatedSwitcher(
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return RotationTransition(
+                            turns: animation,
+                            child: child
+                        );
+                      },
+                      layoutBuilder: (currentChild, previousChildren) {
+                        return currentChild!;
+                      },
+                      switchInCurve: Curves.elasticOut,
+                      duration: const Duration(milliseconds: 2000),
+                      child: Image.asset(
+                        themeIcon,
+                        height: width * 0.21,
+                        width: width * 0.21,
+                        color: Theme.of(context).primaryColor,
+                        key: ValueKey<String>(themeIcon),
+                      )
                   ),
-                  BaseButton(data: "Toggle Theme", onTap: toggleTheme),
+                  BaseButton(data: "toggle Theme", onTap: toggleTheme),
+                  BaseButton(data: "how it works", onTap: (){}),
                   ElevatedButton(
                     onPressed: toggleTheme,
                     child: const Text("Toggle Theme"),
@@ -70,8 +87,17 @@ class _SettingsState extends State<Settings> {
   }
 
   void toggleTheme() {
-    AdaptiveTheme.of(context).mode.isDark
-        ? AdaptiveTheme.of(context).setLight()
-        : AdaptiveTheme.of(context).setDark();
+    if(AdaptiveTheme.of(context).mode.isDark){
+      AdaptiveTheme.of(context).setLight();
+      setState(() {
+        themeIcon = "assets/icons/lightTheme.png";
+      });
+    }
+    else {
+      AdaptiveTheme.of(context).setDark();
+      setState(() {
+        themeIcon = "assets/icons/darkTheme.png";
+      });
+    }
   }
 }
