@@ -10,15 +10,19 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  String themeIcon = "assets/icons/lightTheme.png";
+  late String themeIcon;
 
   @override
   void initState() {
     super.initState();
+
   }
 
   @override
   Widget build(BuildContext context) {
+    AdaptiveTheme.of(context).mode.isDark
+        ? themeIcon = "assets/icons/darkTheme.png"
+        : themeIcon = "assets/icons/lightTheme.png";
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(

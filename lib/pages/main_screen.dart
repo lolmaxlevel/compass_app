@@ -14,6 +14,7 @@ import 'package:compass_app/pages/settings.dart';
 import '../models/server_io.dart';
 import 'package:mutex/mutex.dart';
 import 'package:web_socket_client/web_socket_client.dart';
+import 'package:page_transition/page_transition.dart';
 
 class MainScreen extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
@@ -125,8 +126,20 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       Padding(padding: EdgeInsets.symmetric(vertical: height*0.05)),
                       AnimatedHeart(onPressed: toggleLocation),
-                      Text(heartClicked?"sharing":"not sharing",
-                        style: Theme.of(context).textTheme.bodyLarge,),
+                      AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                                opacity: animation,
+                                child: child
+                            );},
+                          child: Text(
+                            heartClicked?"sharing":"not sharing",
+                            key: ValueKey(heartClicked),
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          )
+                      ),
                       Padding(padding: EdgeInsets.only(top: height*0.1)),
                       const BaseButton(data: 'copy the code', child: CopyCode()),
                       const Padding(padding: EdgeInsets.only(top: 10)),
@@ -140,7 +153,12 @@ class _MainScreenState extends State<MainScreen> {
                           child: Padding(
                             padding: EdgeInsets.only(bottom: height*0.12),
                             child: GestureDetector(
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings())),
+                                onTap: () => Navigator.push(context,
+                                    PageTransition(
+                                        type: PageTransitionType.fade,
+                                        child: const Settings()
+                                    )
+                                ),
                                 child: Image.asset(
                                     'assets/icons/settings.png',
                                     width: width * 0.12,
