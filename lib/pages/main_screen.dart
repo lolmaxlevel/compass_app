@@ -99,7 +99,6 @@ class MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    print(height);
     final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(
       duration: const Duration(seconds: 1),

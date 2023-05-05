@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:compass_app/widgets/base_button.dart';
 import 'package:flutter/material.dart';
+import 'package:random_color_scheme/random_color_scheme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final Uri _url = Uri.parse('vk://vk.com/artbears');
@@ -13,7 +16,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-
+  bool isRandomTheme = false;
   @override
   void initState() {
     super.initState();
@@ -22,7 +25,6 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    print(height);
     final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(
       data: Theme.of(context),
@@ -54,27 +56,31 @@ class _SettingsState extends State<Settings> {
               child: Column(
                 children: [
                   Padding(padding: EdgeInsets.symmetric(vertical: height * 0.065)),
-                  AnimatedSwitcher(
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        return RotationTransition(
-                            turns: animation,
-                            child: child
-                        );
-                      },
-                      layoutBuilder: (currentChild, previousChildren) {
-                        return currentChild!;
-                      },
-                      switchInCurve: Curves.elasticOut,
-                      duration: const Duration(milliseconds: 2000),
-                      child: Image.asset(
-                        AdaptiveTheme.of(context).mode.isDark
-                            ? "assets/icons/darkTheme.png"
-                            : "assets/icons/lightTheme.png",
-                        height: width * 0.21,
-                        width: width * 0.21,
-                        color: Theme.of(context).primaryColor,
-                        key: ValueKey<bool>(AdaptiveTheme.of(context).mode.isDark),
-                      )
+                  GestureDetector(
+                    onLongPress: toggleRandomTheme,
+                    onTap: toggleTheme,
+                    child: AnimatedSwitcher(
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return RotationTransition(
+                              turns: animation,
+                              child: child
+                          );
+                        },
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return currentChild!;
+                        },
+                        switchInCurve: Curves.elasticOut,
+                        duration: const Duration(milliseconds: 2000),
+                        child: Image.asset(
+                          AdaptiveTheme.of(context).mode.isDark
+                              ? "assets/icons/darkTheme.png"
+                              : "assets/icons/lightTheme.png",
+                          height: width * 0.21,
+                          width: width * 0.21,
+                          color: Theme.of(context).primaryColor,
+                          key: ValueKey<bool>(AdaptiveTheme.of(context).mode.isDark),
+                        )
+                    ),
                   ),
                   Padding(padding: EdgeInsets.symmetric(vertical: height * 0.06),),
                   BaseButton(data: "change theme", onTap: toggleTheme),
@@ -89,6 +95,19 @@ class _SettingsState extends State<Settings> {
         ],
       ),
     );
+  }
+
+  void toggleRandomTheme() {
+    if (isRandomTheme){
+      AdaptiveTheme.of(context).reset();
+      isRandomTheme = false;
+    } else {
+      isRandomTheme = true;
+      AdaptiveTheme.of(context).setTheme(
+        light: ThemeData(colorScheme: randomColorSchemeLight(), primaryColor: Colors.primaries[Random().nextInt(Colors.primaries.length)]),
+        dark: ThemeData(colorScheme: randomColorSchemeDark(), primaryColor: Colors.primaries[Random().nextInt(Colors.primaries.length)]),
+      );
+    }
   }
 
   void toggleTheme() {

@@ -129,6 +129,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  hsluv:
+    dependency: transitive
+    description:
+      name: hsluv
+      sha256: f33e63b0c24ceee0f6492874424aa8edc671ef9a20cc889e4b969284d8f02eb1
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.3"
   js:
     dependency: transitive
     description:
@@ -249,6 +257,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
+  random_color_scheme:
+    dependency: "direct main"
+    description:
+      name: random_color_scheme
+      sha256: f9140b04ba7017a8aff66c5603341ace21e6e6dfb6212285bfae5ba4794cdbbe
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
   shared_preferences:
     dependency: "direct main"
     description:
