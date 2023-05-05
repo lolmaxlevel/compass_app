@@ -125,7 +125,7 @@ class MainScreenState extends State<MainScreen> {
                   child: Column(
                     children: [
                       Padding(padding: EdgeInsets.symmetric(vertical: height*0.10)),
-                      AnimatedHeart(onPressed: toggleLocation),
+                      AnimatedHeart(onPressed: toggleLocation, isServerConnected: isServerConnected),
                       AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           transitionBuilder:
@@ -151,7 +151,7 @@ class MainScreenState extends State<MainScreen> {
                         child: Align(
                           alignment: Alignment.bottomCenter,
                           child: Padding(
-                            padding: EdgeInsets.only(bottom: height*0.12),
+                            padding: EdgeInsets.only(bottom: height*0.09),
                             child: GestureDetector(
                                 onTap: () => Navigator.push(context,
                                     PageTransition(
@@ -173,18 +173,18 @@ class MainScreenState extends State<MainScreen> {
                           ),
                         ),
                       ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            isServerConnected ? '' : 'Server disconnected',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  isServerConnected ? '' : 'Server disconnected',
-                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
             ),
@@ -194,10 +194,10 @@ class MainScreenState extends State<MainScreen> {
   }
 
   void toggleLocation(){
-    heartClicked ? stopLocation() : startLocationService();
-    setState(() {
-      heartClicked = !heartClicked;
-    });
+      heartClicked ? stopLocation() : startLocationService();
+      setState(() {
+        heartClicked = !heartClicked;
+      });
   }
 
 

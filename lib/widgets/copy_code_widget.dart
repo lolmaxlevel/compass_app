@@ -54,6 +54,9 @@ class _CopyCodeState extends State<CopyCode> {
               const SnackBar(
                 content: Text("Code copied to clipboard!"),
                 duration: Duration(seconds: 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                ),
               ));
           });
         },

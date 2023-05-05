@@ -56,6 +56,9 @@ class _PasteCodeState extends State<PasteCode> {
                 const SnackBar(
                   content: Text("Code saved!"),
                   duration: Duration(seconds: 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
                 ));
           },
           onChanged: (text) {
