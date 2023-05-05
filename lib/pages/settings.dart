@@ -1,4 +1,5 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:compass_app/widgets/base_button.dart';
 import 'package:flutter/material.dart';
 
 class Settings extends StatefulWidget {
@@ -40,6 +41,7 @@ class _SettingsState extends State<Settings> {
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
+              iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
               backgroundColor: Colors.transparent,
               elevation: 0,
             ),
@@ -53,6 +55,7 @@ class _SettingsState extends State<Settings> {
                     width: width * 0.21,
                     color: Theme.of(context).primaryColor,
                   ),
+                  BaseButton(data: "Toggle Theme", onTap: toggleTheme),
                   ElevatedButton(
                     onPressed: toggleTheme,
                     child: const Text("Toggle Theme"),

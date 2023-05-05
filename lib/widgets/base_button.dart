@@ -5,7 +5,14 @@ class BaseButton extends StatefulWidget {
 
   final Widget child;
 
-  const BaseButton({Key? key, required this.data, required this.child}) : super(key: key);
+  final Function? onTap;
+
+  const BaseButton({
+    Key? key,
+    required this.data,
+    this.child = const Text(""),
+    this.onTap
+  }) : super(key: key);
 
   @override
   State<BaseButton> createState() => _BaseButtonState();
@@ -13,6 +20,7 @@ class BaseButton extends StatefulWidget {
 
 class _BaseButtonState extends State<BaseButton> {
   late Widget _animatedButton;
+  bool _buttonPressed = false;
 
   @override
   void initState() {
@@ -20,17 +28,21 @@ class _BaseButtonState extends State<BaseButton> {
     super.initState();
   }
 
-  bool _buttonPressed = false;
-
   void _onButtonPressed() {
-    setState(() {
-      _buttonPressed = !_buttonPressed;
-      if (_buttonPressed) {
-        _animatedButton = widget.child;
-      } else {
-        _animatedButton = Text(widget.data,style: const TextStyle(fontSize: 20),);
-      }
-    });
+    if (widget.onTap != null) {
+      widget.onTap!();
+    }
+    else {
+      setState(() {
+        _buttonPressed = !_buttonPressed;
+        if (_buttonPressed) {
+          _animatedButton = widget.child;
+        } else {
+          _animatedButton =
+              Text(widget.data, style: const TextStyle(fontSize: 20),);
+        }
+      });
+    }
   }
   
   @override
