@@ -30,25 +30,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  web_socket_channel: ^2.3.0
-  shared_preferences: ^2.1.0
-  adaptive_theme: ^3.2.0
+  web_socket_channel: 2.3.0
+  shared_preferences: 2.1.0
+  adaptive_theme: 3.2.0
   background_location:
     git:
       url: https://github.com/Almoullim/background_location
       ref: master
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  pin_code_fields: ^7.4.0
-  mutex: ^3.0.1
-  flutter_animator: ^3.2.2
-  web_socket_client: ^0.1.0-dev.3
-  page_transition: ^2.0.9
+  cupertino_icons: 1.0.2
+  pin_code_fields: 7.4.0
+  mutex: 3.0.1
+  flutter_animator: 3.2.2
+  web_socket_client: 0.1.0-dev.3
+  page_transition: 2.0.9
+  random_color_scheme: 0.1.4
   url_launcher: ^6.1.10
-  random_color_scheme: ^0.1.4
+  card_swiper: ^2.0.4
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +75,7 @@ flutter:
     - assets/
     - assets/heart/
     - assets/icons/
+    - assets/pages/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

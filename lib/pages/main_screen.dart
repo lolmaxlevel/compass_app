@@ -31,7 +31,7 @@ class MainScreen extends StatefulWidget {
 class MainScreenState extends State<MainScreen> {
   final lock = Mutex();
   bool heartClicked = false;
-  bool isServerConnected = false;
+  bool isServerConnected = true;
   String id = "";
   String location = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();

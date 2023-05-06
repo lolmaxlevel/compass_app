@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:compass_app/pages/swiper.dart';
 import 'package:compass_app/widgets/base_button.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:random_color_scheme/random_color_scheme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -83,9 +85,14 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   Padding(padding: EdgeInsets.symmetric(vertical: height * 0.06),),
-                  BaseButton(data: "change theme", onTap: toggleTheme),
+                  BaseButton(data: "connect compass", onTap: connectCompass),
                   const Padding(padding: EdgeInsets.only(top: 20)),
-                  BaseButton(data: "how it works", onTap: (){}),
+                  BaseButton(data: "how it works", onTap: (){Navigator.push(context,
+                      PageTransition(
+                          type: PageTransitionType.fade,
+                          child: const MySwiper()
+                      )
+                  );}),
                   const Padding(padding: EdgeInsets.only(top: 100)),
                   BaseButton(data: "visit our VK", onTap: (){_launchUrl();}),
                 ],
@@ -96,7 +103,9 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
+  void connectCompass() {
 
+  }
   void toggleRandomTheme() {
     if (isRandomTheme){
       AdaptiveTheme.of(context).reset();

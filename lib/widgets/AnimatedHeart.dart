@@ -36,11 +36,14 @@ class _AnimatedHeartState extends State<AnimatedHeart> {
             offset: Duration(milliseconds: 0),
             magnitude: 0.5,
           ),
-          child: Image.asset(
-            heartImage,
-            width: width*0.20,
-            color: Theme.of(context).primaryColor,
-            key: ValueKey<String>(heartImage),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: Image.asset(
+              heartImage,
+              width: width*0.20,
+              color: Theme.of(context).primaryColor,
+              key: ValueKey<String>(heartImage),
+            ),
           ),
         ),
       ),
