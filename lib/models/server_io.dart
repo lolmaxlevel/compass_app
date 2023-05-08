@@ -21,7 +21,6 @@ class Request {
 class LocationRequest extends Request {
   final String type;
   final String id;
-  final String partnerId;
   final String latitude;
   final String longitude;
   final String altitude;
@@ -30,14 +29,13 @@ class LocationRequest extends Request {
   final String speed;
   final String time;
 
-  LocationRequest(this.type,this.id, this.partnerId, this.latitude, this.longitude,
+  LocationRequest(this.type,this.id, this.latitude, this.longitude,
         this.altitude, this.accuracy, this.bearing, this.speed, this.time);
 
   LocationRequest.fromJson(Map<String, dynamic> json)
       :
         type = json['type'],
         id = json['id'],
-        partnerId = json['partner_id'],
         latitude = json['lat'],
         longitude = json['long'],
         altitude = json['alt'],
@@ -50,7 +48,6 @@ class LocationRequest extends Request {
   Map<String, dynamic> toJson() => {
     'type':       "location",
     'id':         id,
-    'partner_id': partnerId,
     'lat':        latitude,
     'long':       longitude,
     'alt':        altitude,
@@ -72,5 +69,36 @@ class HandShakeRequest extends Request{
   Map<String, dynamic> toJson() => {
     'type':       "Handshake",
     'id':         id,
+  };
+}
+
+class CompassRequest extends Request{
+  final String type;
+  final String id;
+  final String partnerId;
+  final String status;
+
+  CompassRequest(
+  {
+    this.type = "compass",
+    required this.id,
+    required this.partnerId,
+    required this.status,
+  });
+
+  CompassRequest.fromJson(Map<String, dynamic> json)
+      :
+        type = json['type'],
+        id = json['id'],
+        partnerId = json['partnerId'],
+        status = json['status'];
+
+  @override
+  Map<String, dynamic> toJson() => {
+    'type':       "compass",
+    'id':         id,
+    'partnerId':  partnerId,
+    'status':     status,
+    'time':       DateTime.now().microsecondsSinceEpoch.toString(),
   };
 }

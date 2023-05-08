@@ -46,6 +46,7 @@ dependencies:
   random_color_scheme: 0.1.4
   url_launcher: ^6.1.10
   card_swiper: ^2.0.4
+  http: ^0.13.6
 
 dev_dependencies:
   flutter_test:

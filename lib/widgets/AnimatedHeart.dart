@@ -3,11 +3,19 @@ import 'package:flutter_animator/animation/animation_preferences.dart';
 import 'package:flutter_animator/animation/animator_play_states.dart';
 import 'package:flutter_animator/widgets/animator_widget.dart';
 import 'package:flutter_animator/widgets/attention_seekers/heart_beat.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AnimatedHeart extends StatefulWidget {
-  const AnimatedHeart({Key? key, required this.onPressed, required this.isServerConnected}) : super(key: key);
+  const AnimatedHeart({
+    Key? key,
+    required this.onPressed,
+    required this.isServerConnected,
+    required this.isCompassConnected,
+
+  }) : super(key: key);
   final Function onPressed;
   final bool isServerConnected;
+  final bool isCompassConnected;
 
   @override
   State<AnimatedHeart> createState() => _AnimatedHeartState();
@@ -50,8 +58,25 @@ class _AnimatedHeartState extends State<AnimatedHeart> {
     );
   }
 
-  void toggleHeart(){
-    if (widget.isServerConnected){
+  void toggleHeart() async {
+    var prefs = await SharedPreferences.getInstance();
+    var partnerId = prefs.getString('partner_id')??'';
+    if (!widget.isServerConnected || (widget.isCompassConnected && partnerId.length!=6)) {
+      var text = !widget.isServerConnected
+          ? "server is not connected"
+          : "partner isn't specified";
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+          SnackBar(
+            content: Text("Can't share location, $text"),
+            duration: Duration(seconds: 2),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))
+            ),
+            backgroundColor: Color.fromARGB(255, 187, 84, 84),
+          ));
+    }
+    else {
       widget.onPressed();
       if (heartClicked) {
         _key.currentState?.reset();
@@ -65,18 +90,6 @@ class _AnimatedHeartState extends State<AnimatedHeart> {
             ?'assets/heart/heart-crossed.png'
             :'assets/heart/heart.png';
       });
-    }
-    else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-          const SnackBar(
-            content: Text("Can't share location, server is disconnected"),
-            duration: Duration(seconds: 2),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(15))
-            ),
-            backgroundColor: Color.fromARGB(255, 187, 84, 84),
-          ));
     }
   }
 }

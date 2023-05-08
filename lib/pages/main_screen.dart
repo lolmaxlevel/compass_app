@@ -15,6 +15,7 @@ import '../models/server_io.dart';
 import 'package:mutex/mutex.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:http/http.dart' as http;
 
 class MainScreen extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
@@ -36,9 +37,12 @@ class MainScreenState extends State<MainScreen> {
   String location = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late final WebSocket socket;
-
+  bool compassConnected = false;
+  late Future<String> futureHost;
+  late String host;
   @override
   void initState() {
+    super.initState();
     _prefs.then((SharedPreferences prefs) {
       id = prefs.getString('id')??"";
       if (id == ""){
@@ -46,23 +50,31 @@ class MainScreenState extends State<MainScreen> {
       }
       prefs.setString('id', id);
     });
-    connectToServer();
-    super.initState();
+    futureHost = fetchHost();
+    futureHost.then((value) => host = value);
+    futureHost.whenComplete(
+            () => connectToServer()
+    );
   }
+
   void connectToServer(){
     socket = WebSocket(
-        Uri.parse('ws://192.168.0.106:9000'),
+        Uri.parse("ws://$host"),
         timeout: const Duration(seconds: 5),
         backoff: const ConstantBackoff(Duration(seconds: 5))
     );
     socket.messages.listen((message) {
-      print(message);
+      print("new nessage: $message");
     });
     socket.connection.listen((state) {
       if (state == const Connecting() || state == const Reconnecting()){
         if (kDebugMode) {
           print("connecting");
         }
+        // use provider right here
+        // if (heartClicked){
+        //   toggleLocation();
+        // }
         setState(() {
           isServerConnected = false;
         });
@@ -72,14 +84,17 @@ class MainScreenState extends State<MainScreen> {
         if (kDebugMode) {
           print("connected");
         }
-        sendMessage(HandShakeRequest(id));
         setState(() {
           isServerConnected = true;
         });
+        sendMessage(HandShakeRequest(id));
       }
       if (state == const Disconnected()){
         if (kDebugMode) {
           print("disconnected");
+        }
+        if (heartClicked){
+          toggleLocation();
         }
         setState(() {
           isServerConnected = false;
@@ -87,10 +102,11 @@ class MainScreenState extends State<MainScreen> {
       }
     });
   }
+
   void sendMessage(Request request) {
     if (isServerConnected) {
       if (kDebugMode) {
-        print("sending ${jsonEncode(request)}");
+        print("sending message");
       }
       socket.send(jsonEncode(request));
     }
@@ -125,7 +141,7 @@ class MainScreenState extends State<MainScreen> {
                   child: Column(
                     children: [
                       Padding(padding: EdgeInsets.symmetric(vertical: height*0.10)),
-                      AnimatedHeart(onPressed: toggleLocation, isServerConnected: isServerConnected),
+                      AnimatedHeart(onPressed: toggleLocation, isServerConnected: isServerConnected, isCompassConnected: compassConnected),
                       AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           transitionBuilder:
@@ -135,7 +151,11 @@ class MainScreenState extends State<MainScreen> {
                                 child: child
                             );},
                           child: Text(
-                            heartClicked?"sharing":"not sharing",
+                            heartClicked
+                                ? (!compassConnected
+                                ? "sharing":"the compass points at your love")
+                                : (!compassConnected
+                                ? "not sharing":"the compass is stopped"),
                             key: ValueKey(heartClicked),
                             style: Theme.of(context).textTheme.bodyLarge,
                           )
@@ -146,7 +166,11 @@ class MainScreenState extends State<MainScreen> {
                       const Text('or', style: TextStyle(fontSize: 20),),
                       const Padding(padding: EdgeInsets.only(top: 10)),
                       const BaseButton(data: "paste the code", child: PasteCode()),
-                      Text(location),
+                      ElevatedButton(onPressed:
+                          () => {setState(() {
+                          compassConnected = !compassConnected;}),
+                          },
+                          child: Text(compassConnected?"disconnect compass":"connect compass")),
                       Expanded(
                         child: Align(
                           alignment: Alignment.bottomCenter,
@@ -193,11 +217,22 @@ class MainScreenState extends State<MainScreen> {
     );
   }
 
-  void toggleLocation(){
+  void toggleLocation() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (compassConnected) {
+        sendMessage(
+            CompassRequest(
+                id: id,
+                partnerId: prefs.getString('partner_id')??"",
+                status: heartClicked ? "stop" : "start"
+            ));
+      }
+    else {
       heartClicked ? stopLocation() : startLocationService();
-      setState(() {
-        heartClicked = !heartClicked;
-      });
+    }
+    setState(() {
+      heartClicked = !heartClicked;
+    });
   }
 
 
@@ -231,7 +266,6 @@ class MainScreenState extends State<MainScreen> {
             LocationRequest(
               "location",
               prefs.getString('id')??"",
-              prefs.getString('partner_id')??"",
               location.latitude.toString(),
               location.longitude.toString(),
               location.altitude.toString(),
@@ -247,6 +281,20 @@ class MainScreenState extends State<MainScreen> {
   }
   void stopLocation(){
     BackgroundLocation.stopLocationService();
+  }
+
+  Future<String> fetchHost() async {
+    final response =
+    await http.get(Uri.parse('https://pastebin.com/raw/UK7tXhnn'));
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return response.body;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
   }
 
   @override
