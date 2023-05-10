@@ -66,6 +66,9 @@ class MainScreenState extends State<MainScreen> {
     );
     socket.messages.listen((message) {
       print("new nessage: $message");
+      setState(() {
+        location = message;
+      });
     });
     socket.connection.listen((state) {
       if (state == const Connecting() || state == const Reconnecting()){
@@ -166,6 +169,7 @@ class MainScreenState extends State<MainScreen> {
                       const Text('or', style: TextStyle(fontSize: 20),),
                       const Padding(padding: EdgeInsets.only(top: 10)),
                       const BaseButton(data: "paste the code", child: PasteCode()),
+                      Text(location),
                       ElevatedButton(onPressed:
                           () => {setState(() {
                           compassConnected = !compassConnected;}),
