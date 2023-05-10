@@ -40,6 +40,7 @@ class MainScreenState extends State<MainScreen> {
   bool compassConnected = false;
   late Future<String> futureHost;
   late String host;
+
   @override
   void initState() {
     super.initState();
@@ -78,7 +79,6 @@ class MainScreenState extends State<MainScreen> {
         setState(() {
           isServerConnected = false;
         });
-
       }
       if (state == const Connected() || state == const Reconnected()){
         if (kDebugMode) {

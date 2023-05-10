@@ -1,25 +1,27 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/cupertino.dart';
 
-
+const imageCount = 2;
 class MySwiper extends StatelessWidget {
   const MySwiper({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var images = [
-      Image.asset('assets/pages/1.png', fit: BoxFit.contain,),
-      Image.asset('assets/pages/2.png', fit: BoxFit.contain,),
-      Image.asset('assets/pages/3.png', fit: BoxFit.contain,),
-      Image.asset('assets/pages/4.png', fit: BoxFit.contain,)
-    ];
+    final imagesD = <Image>[];
+    final imagesL = <Image>[];
+    for (var i=1; i<=imageCount; i++) {
+      imagesL.add(Image.asset('assets/pages/$i(l).png', fit: BoxFit.contain,));
+      imagesD.add(Image.asset('assets/pages/$i(d).png', fit: BoxFit.contain,));
+    }
+
     return Stack(
       children:[
         Positioned.fill(
           child: SizedBox(
               child: Container(
                 decoration:
-                const BoxDecoration(color: Color.fromARGB(150, 58, 56, 56)),
+                const BoxDecoration(color: Color.fromARGB(220, 39, 39, 39)),
               )
           )
       ),
@@ -28,17 +30,25 @@ class MySwiper extends StatelessWidget {
             Navigator.pop(context);
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height-667 + 70)/2),
+            padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height * 0.135)),
             child: Swiper(
-            itemBuilder: (BuildContext context, int index) {
-              return images[index];
-            },
-            indicatorLayout: PageIndicatorLayout.COLOR,
-            pagination: const SwiperPagination(),
-            control: const SwiperControl(),
-            itemCount: 4,
-            viewportFraction: 0.8,
-            scale: 0.9,
+              itemBuilder: (BuildContext context, int index) {
+                // might be better without 2 lists, with
+                // AdaptiveTheme.of(context).mode.isDark
+                //                     ? Image.asset('assets/pages/${index+1}(d).png', fit: BoxFit.contain,)
+                //                     : Image.asset('assets/pages/${index+1}(l).png', fit: BoxFit.contain,);
+                return AdaptiveTheme.of(context).mode.isDark
+                    ? imagesD[index]
+                    : imagesL[index];
+                },
+              indicatorLayout: PageIndicatorLayout.COLOR,
+              pagination:
+              const SwiperPagination(
+                margin: EdgeInsets.only(top: 0),
+              ),
+              itemCount: imageCount,
+              viewportFraction: 0.8,
+              scale: 0.9,
             ),
           ),
         ),
