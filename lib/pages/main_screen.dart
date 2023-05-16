@@ -9,13 +9,16 @@ import 'package:compass_app/widgets/copy_code_widget.dart';
 import 'package:compass_app/widgets/paste_code_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:compass_app/pages/settings.dart';
+import '../controllers/bluetooth_сontroller.dart';
 import '../models/server_io.dart';
 import 'package:mutex/mutex.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
+
 
 class MainScreen extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
@@ -37,17 +40,25 @@ class MainScreenState extends State<MainScreen> {
   String location = "";
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late final WebSocket socket;
-  bool compassConnected = false;
+
+  ValueNotifier<bool> isCompassConnected = BTController().isConnected;
+
   late Future<String> futureHost;
   late String host;
+
+  bool ledState = false;
+
+  BluetoothConnection? connection;
 
   @override
   void initState() {
     super.initState();
     _prefs.then((SharedPreferences prefs) {
       id = prefs.getString('id')??"";
-      if (id == ""){
-        id = (UniqueKey().hashCode % 1000000).toString();
+      if (id.length < 6){
+        while (id.length < 6) {
+          id = (UniqueKey().hashCode % 1000000).toString();
+        }
       }
       prefs.setString('id', id);
     });
@@ -144,7 +155,11 @@ class MainScreenState extends State<MainScreen> {
                   child: Column(
                     children: [
                       Padding(padding: EdgeInsets.symmetric(vertical: height*0.10)),
-                      AnimatedHeart(onPressed: toggleLocation, isServerConnected: isServerConnected, isCompassConnected: compassConnected),
+                      AnimatedHeart(
+                          onPressed: toggleLocation,
+                          isServerConnected: isServerConnected,
+                          isCompassConnected: isCompassConnected.value,
+                      ),
                       AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           transitionBuilder:
@@ -153,14 +168,17 @@ class MainScreenState extends State<MainScreen> {
                                 opacity: animation,
                                 child: child
                             );},
-                          child: Text(
-                            heartClicked
-                                ? (!compassConnected
-                                ? "sharing":"the compass points at your love")
-                                : (!compassConnected
-                                ? "not sharing":"the compass is stopped"),
-                            key: ValueKey(heartClicked),
-                            style: Theme.of(context).textTheme.bodyLarge,
+                          child: ValueListenableBuilder(
+                            valueListenable: isCompassConnected,
+                            builder: (BuildContext context, bool value, Widget? child) { return Text(
+                              heartClicked
+                                  ? (!isCompassConnected.value
+                                  ? "sharing":"the compass points at your love")
+                                  : (!isCompassConnected.value
+                                  ? "not sharing":"the compass is stopped"),
+                              key: ValueKey(heartClicked),
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            );},
                           )
                       ),
                       Padding(padding: EdgeInsets.only(top: height*0.1)),
@@ -170,11 +188,6 @@ class MainScreenState extends State<MainScreen> {
                       const Padding(padding: EdgeInsets.only(top: 10)),
                       const BaseButton(data: "paste the code", child: PasteCode()),
                       Text(location),
-                      ElevatedButton(onPressed:
-                          () => {setState(() {
-                          compassConnected = !compassConnected;}),
-                          },
-                          child: Text(compassConnected?"disconnect compass":"connect compass")),
                       Expanded(
                         child: Align(
                           alignment: Alignment.bottomCenter,
@@ -223,7 +236,7 @@ class MainScreenState extends State<MainScreen> {
 
   void toggleLocation() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (compassConnected) {
+    if (isCompassConnected.value) {
         sendMessage(
             CompassRequest(
                 id: id,
@@ -238,7 +251,6 @@ class MainScreenState extends State<MainScreen> {
       heartClicked = !heartClicked;
     });
   }
-
 
   void startLocationService() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -283,6 +295,7 @@ class MainScreenState extends State<MainScreen> {
       });
     });
   }
+  
   void stopLocation(){
     BackgroundLocation.stopLocationService();
   }
@@ -301,9 +314,15 @@ class MainScreenState extends State<MainScreen> {
     }
   }
 
+  void setConnection(BluetoothConnection connection){
+    setState(() {
+      this.connection = connection;
+    });
+  }
   @override
   void dispose() {
     BackgroundLocation.stopLocationService();
     super.dispose();
   }
+
 }

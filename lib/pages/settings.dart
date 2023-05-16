@@ -8,10 +8,15 @@ import 'package:page_transition/page_transition.dart';
 import 'package:random_color_scheme/random_color_scheme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../controllers/bluetooth_сontroller.dart';
+
 final Uri _url = Uri.parse('vk://vk.com/artbears');
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+
+  const Settings({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -19,13 +24,20 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   bool isRandomTheme = false;
+
+  var blueToothController = BTController();
+
   @override
   void initState() {
     super.initState();
   }
 
+  ValueNotifier isCompassConnected = BTController().isConnected;
+
+  String buttonData = "connect compass";
   @override
   Widget build(BuildContext context) {
+
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(
@@ -85,7 +97,8 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   Padding(padding: EdgeInsets.symmetric(vertical: height * 0.06),),
-                  BaseButton(data: "connect compass", onTap: connectCompass),
+                  BaseButton(data: buttonData, onTap: connectCompass),
+                  ElevatedButton(onPressed: () => blueToothController.sendMessage("1"), child: Text("1")),
                   const Padding(padding: EdgeInsets.only(top: 20)),
                   BaseButton(data: "how it works", onTap: (){Navigator.push(context,
                       PageTransition(
@@ -103,9 +116,11 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
-  void connectCompass() {
 
+  void connectCompass() async {
+    blueToothController.connect();
   }
+
   void toggleRandomTheme() {
     if (isRandomTheme){
       AdaptiveTheme.of(context).reset();

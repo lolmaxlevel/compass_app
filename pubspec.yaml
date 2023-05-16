@@ -45,6 +45,8 @@ dependencies:
   url_launcher: ^6.1.10
   card_swiper: ^2.0.4
   http: ^0.13.6
+  flutter_blue_plus: ^1.4.0
+  flutter_bluetooth_serial: ^0.4.0
 
 dev_dependencies:
   flutter_test:
