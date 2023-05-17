@@ -18,6 +18,7 @@ import 'package:mutex/mutex.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
+import 'package:geolocator/geolocator.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class MainScreenState extends State<MainScreen> {
   bool heartClicked = false;
   bool isServerConnected = true;
   String id = "";
-  String location = "";
+  late Location location;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late final WebSocket socket;
 
@@ -76,10 +77,20 @@ class MainScreenState extends State<MainScreen> {
         backoff: const ConstantBackoff(Duration(seconds: 5))
     );
     socket.messages.listen((message) {
-      print("new nessage: $message");
-      setState(() {
-        location = message;
-      });
+      // parse location into location object
+      // get azimuth
+      // send azimuth via bluetooth
+      var locationJson = jsonDecode(message);
+      if (location.latitude != null) {
+        var bearing = Geolocator.bearingBetween(
+            double.parse(locationJson["lat"]),
+            double.parse(locationJson["long"]),
+            location.latitude ?? 0,
+            location.longitude ?? 0);
+        if (isCompassConnected.value) {
+          BTController().sendMessage(bearing.toString());
+        }
+      }
     });
     socket.connection.listen((state) {
       if (state == const Connecting() || state == const Reconnecting()){
@@ -187,7 +198,6 @@ class MainScreenState extends State<MainScreen> {
                       const Text('or', style: TextStyle(fontSize: 20),),
                       const Padding(padding: EdgeInsets.only(top: 10)),
                       const BaseButton(data: "paste the code", child: PasteCode()),
-                      Text(location),
                       Expanded(
                         child: Align(
                           alignment: Alignment.bottomCenter,
@@ -236,6 +246,7 @@ class MainScreenState extends State<MainScreen> {
 
   void toggleLocation() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //remove !
     if (isCompassConnected.value) {
         sendMessage(
             CompassRequest(
@@ -244,9 +255,9 @@ class MainScreenState extends State<MainScreen> {
                 status: heartClicked ? "stop" : "start"
             ));
       }
-    else {
-      heartClicked ? stopLocation() : startLocationService();
-    }
+
+    heartClicked ? stopLocation() : startLocationService();
+
     setState(() {
       heartClicked = !heartClicked;
     });
@@ -264,32 +275,35 @@ class MainScreenState extends State<MainScreen> {
     await BackgroundLocation.setAndroidConfiguration(1000);
     await BackgroundLocation.startLocationService();
 
-    BackgroundLocation.getLocationUpdates((location) {
+    BackgroundLocation.getLocationUpdates((bgLocation) {
       if (lock.isLocked) return;
       lock.protect(() {
-        if (kDebugMode) {
-          print('''\n
-                        Latitude:  ${location.latitude.toString()}
-                        Longitude: ${location.longitude.toString()}
-                        Altitude: ${location.altitude.toString()}
-                        Accuracy: ${location.accuracy.toString()}
-                        Speed: ${location.speed.toString()}
-                        Time: ${DateTime.now().toString()}
-                      ''');
+        // if (kDebugMode) {
+        //   print('''\n
+        //                 Latitude:  ${bgLocation.latitude.toString()}
+        //                 Longitude: ${bgLocation.longitude.toString()}
+        //                 Altitude: ${bgLocation.altitude.toString()}
+        //                 Accuracy: ${bgLocation.accuracy.toString()}
+        //                 Speed: ${bgLocation.speed.toString()}
+        //                 Time: ${DateTime.now().toString()}
+        //               ''');
+        // }
+        
+        location = bgLocation;
+        if (!isCompassConnected.value){
+          sendMessage(
+              LocationRequest(
+                "location",
+                prefs.getString('id')??"",
+                bgLocation.latitude.toString(),
+                bgLocation.longitude.toString(),
+                bgLocation.altitude.toString(),
+                bgLocation.accuracy.toString(),
+                bgLocation.bearing.toString(),
+                bgLocation.speed.toString(),
+                DateTime.now().microsecondsSinceEpoch.toString(),)
+          );
         }
-
-        sendMessage(
-            LocationRequest(
-              "location",
-              prefs.getString('id')??"",
-              location.latitude.toString(),
-              location.longitude.toString(),
-              location.altitude.toString(),
-              location.accuracy.toString(),
-              location.bearing.toString(),
-              location.speed.toString(),
-              DateTime.now().microsecondsSinceEpoch.toString(),)
-        );
 
         return Future.delayed(const Duration(milliseconds: 100));
       });

@@ -27,6 +27,7 @@ class BTController {
           await BluetoothConnection.toAddress(device.address).then((_connection) {
             _connection.input?.listen((event) {
               if (kDebugMode) {
+                print(event);
                 print(utf8.decode(event));
               }
             }, onDone: () {
