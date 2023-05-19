@@ -2,7 +2,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/cupertino.dart';
 
-const imageCount = 2;
+const imageCount = 5;
 class MySwiper extends StatelessWidget {
   const MySwiper({Key? key}) : super(key: key);
 

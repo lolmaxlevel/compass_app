@@ -18,9 +18,10 @@ import 'package:mutex/mutex.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
-import 'package:geolocator/geolocator.dart';
+import '../utils/location_utils.dart';
 
-
+// #TODO refactor all of this trash code, remove all logic from the UI
+// #TODO add some kind of state management
 class MainScreen extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
 
@@ -82,7 +83,7 @@ class MainScreenState extends State<MainScreen> {
       // send azimuth via bluetooth
       var locationJson = jsonDecode(message);
       if (location.latitude != null) {
-        var bearing = Geolocator.bearingBetween(
+        var bearing = LocationUtils().getBearing(
             double.parse(locationJson["lat"]),
             double.parse(locationJson["long"]),
             location.latitude ?? 0,

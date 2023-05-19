@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BTController {
   static BTController? _instance;
@@ -13,6 +14,14 @@ class BTController {
   ValueNotifier<bool> isConnected = ValueNotifier(false);
 
   Future<bool> connect() async {
+    var status = await Permission.bluetoothConnect.status;
+    var status2 = await Permission.bluetoothScan.status;
+    if (status.isDenied) {
+      await Permission.bluetoothConnect.request();
+    }
+    if (status2.isDenied) {
+      await Permission.bluetoothScan.request();
+    }
     print(isConnected);
     List<BluetoothDevice> devices = [];
     try {
