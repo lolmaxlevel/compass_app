@@ -22,22 +22,24 @@ class Settings extends StatefulWidget {
   State<Settings> createState() => _SettingsState();
 }
 
+ValueNotifier isCompassConnectedListener = BTController().isConnected;
+
 class _SettingsState extends State<Settings> {
+  bool isCompassConnected = BTController().isConnected.value;
   bool isRandomTheme = false;
-
   var blueToothController = BTController();
-
   @override
   void initState() {
     super.initState();
   }
 
-  ValueNotifier isCompassConnected = BTController().isConnected;
 
-  String buttonData = "connect compass";
+
   @override
   Widget build(BuildContext context) {
-
+    isCompassConnectedListener.addListener(() {
+      setState(() {isCompassConnected = isCompassConnectedListener.value;});
+    });
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return AnimatedTheme(
@@ -97,8 +99,24 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   Padding(padding: EdgeInsets.symmetric(vertical: height * 0.06),),
-                  BaseButton(data: buttonData, onTap: connectCompass),
-                  ElevatedButton(onPressed: () => blueToothController.sendMessage("1"), child: Text("1")),
+                  AnimatedSwitcher(
+                    duration: const Duration(seconds: 1),
+                    key: ValueKey<bool>(isCompassConnected),
+                    transitionBuilder: (Widget child, Animation<double> animation) {
+                      return ScaleTransition(
+                          scale: animation,
+                          child: child
+                      );
+                    },
+                    child: BaseButton(
+                        data: isCompassConnected
+                            ? "disconnect compass"
+                            : "connect compass",
+                        onTap:isCompassConnected
+                            ? disconnectCompass
+                            : connectCompass)
+                  ),
+                  // ElevatedButton(onPressed:() => BTController().sendMessage("aboba"), child: Text("send")),
                   const Padding(padding: EdgeInsets.only(top: 20)),
                   BaseButton(data: "how it works", onTap: (){Navigator.push(context,
                       PageTransition(
@@ -119,6 +137,9 @@ class _SettingsState extends State<Settings> {
 
   void connectCompass() async {
     blueToothController.connect();
+  }
+  void disconnectCompass() async {
+    blueToothController.disconnect();
   }
 
   void toggleRandomTheme() {

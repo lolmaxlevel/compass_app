@@ -97,10 +97,12 @@ class MainScreenState extends State<MainScreen> {
         if (kDebugMode) {
           print("connecting");
         }
+        
         // use provider right here
         // if (heartClicked){
         //   toggleLocation();
         // }
+
         setState(() {
           isServerConnected = false;
         });

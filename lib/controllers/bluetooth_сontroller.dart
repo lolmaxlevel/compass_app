@@ -67,6 +67,7 @@ class BTController {
   }
 
   void sendMessage(String message) async {
+    print(message);
     connection!.output.add(Uint8List.fromList(utf8.encode(message)));
     await connection!.output.allSent;
   }
