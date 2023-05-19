@@ -88,7 +88,7 @@ class MainScreenState extends State<MainScreen> {
             double.parse(locationJson["long"]),
             location.latitude ?? 0,
             location.longitude ?? 0);
-        if (isCompassConnected.value) {
+        if (isCompassConnected.value && heartClicked) {
           BTController().sendMessage(bearing.toString());
         }
       }
