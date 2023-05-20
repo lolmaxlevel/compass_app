@@ -32,10 +32,6 @@ dependencies:
     sdk: flutter
   shared_preferences: 2.1.0
   adaptive_theme: 3.2.0
-  background_location:
-    git:
-      url: https://github.com/Almoullim/background_location
-      ref: master
   pin_code_fields: 7.4.0
   mutex: 3.0.1
   flutter_animator: 3.2.2

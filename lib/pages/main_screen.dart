@@ -89,8 +89,17 @@ class MainScreenState extends State<MainScreen> {
           double.parse(locationJson["lat"]),
           double.parse(locationJson["long"]),
       );
+      print(bearing);
+      print(
+          Geolocator.distanceBetween(
+            location.latitude,
+            location.longitude,
+            double.parse(locationJson["lat"]),
+            double.parse(locationJson["long"]),
+          )
+      );
       if (isCompassConnected.value && heartClicked) {
-        BTController().sendMessage(bearing.toString());
+        BTController().sendMessage((bearing+(bearing < 0 ? 360 : 0)).toString());
       }
     });
     socket.connection.listen((state) {
@@ -312,21 +321,26 @@ class MainScreenState extends State<MainScreen> {
             (Position? position) {
 
               print(position == null ? 'Unknown' : '${position.latitude.toString()}, ${position.longitude.toString()}');
-
-          if (!isCompassConnected.value && position != null){
-            location = position;
-            sendMessage(
-                LocationRequest(
-                  "location",
-                  prefs.getString('id')??"",
-                  position.latitude.toString(),
-                  position.longitude.toString(),
-                  position.altitude.toString(),
-                  position.accuracy.toString(),
-                  position.heading.toString(),
-                  position.speed.toString(),
-                  DateTime.now().microsecondsSinceEpoch.toString()));
-          }
+              if (position != null) {
+                location = position;
+                if (!isCompassConnected.value) {
+                  location = position;
+                  sendMessage(
+                      LocationRequest(
+                          "location",
+                          prefs.getString('id') ?? "",
+                          position.latitude.toString(),
+                          position.longitude.toString(),
+                          position.altitude.toString(),
+                          position.accuracy.toString(),
+                          position.heading.toString(),
+                          position.speed.toString(),
+                          DateTime
+                              .now()
+                              .microsecondsSinceEpoch
+                              .toString()));
+                }
+              }
             }
     );
   }
