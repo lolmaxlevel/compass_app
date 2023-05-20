@@ -82,21 +82,11 @@ class MainScreenState extends State<MainScreen> {
       // get azimuth
       // send azimuth via bluetooth
       var locationJson = jsonDecode(message);
-      print('location1: ${location.latitude},${location.longitude}, location2: ${double.parse(locationJson["lat"])}, ${double.parse(locationJson["long"])}');
       var bearing = LocationUtils().getBearing(
           location.latitude,
           location.longitude,
           double.parse(locationJson["lat"]),
           double.parse(locationJson["long"]),
-      );
-      print(bearing);
-      print(
-          Geolocator.distanceBetween(
-            location.latitude,
-            location.longitude,
-            double.parse(locationJson["lat"]),
-            double.parse(locationJson["long"]),
-          )
       );
       if (isCompassConnected.value && heartClicked) {
         BTController().sendMessage((bearing+(bearing < 0 ? 360 : 0)).toString());
