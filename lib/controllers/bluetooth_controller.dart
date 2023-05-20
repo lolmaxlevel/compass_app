@@ -22,12 +22,14 @@ class BTController {
     if (status2.isDenied) {
       await Permission.bluetoothScan.request();
     }
-    print(isConnected);
+
     List<BluetoothDevice> devices = [];
     try {
       devices = await FlutterBluetoothSerial.instance.getBondedDevices();
     } catch (ex) {
-      print('Ошибка: $ex');
+      if (kDebugMode) {
+        print('BT Ошибка: $ex');
+      }
     }
     for (var device in devices){
       device.isConnected?await connection?.close():"";
@@ -41,12 +43,12 @@ class BTController {
               }
             }, onDone: () {
               if (kDebugMode) {
-                print('Соединение закрыто');
+                print('BT Соединение закрыто');
               }
               isConnected.value = false;
             }, onError: (error) {
               if (kDebugMode) {
-                print("Ошибка: $error");
+                print("BT Ошибка: $error");
               }
               isConnected.value = false;
               });
@@ -56,7 +58,7 @@ class BTController {
           });
         } catch (ex) {
           if (kDebugMode) {
-            print('Ошибка: $ex');
+            print('BT Ошибка: $ex');
           }
         }
       }
@@ -70,13 +72,15 @@ class BTController {
       connection = null;
       isConnected.value = false;
       if (kDebugMode) {
-        print('Отключено от устройства.');
+        print('BT Отключено от устройства.');
       }
     }
   }
 
   void sendMessage(String message) async {
-    print(message);
+    if (kDebugMode) {
+      print("bt message $message");
+    }
     connection!.output.add(Uint8List.fromList(utf8.encode(message)));
     await connection!.output.allSent;
   }

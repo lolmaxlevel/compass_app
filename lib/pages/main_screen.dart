@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:compass_app/pages/settings.dart';
-import '../controllers/bluetooth_сontroller.dart';
+import '../controllers/bluetooth_controller.dart';
 import '../models/server_io.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 import 'package:page_transition/page_transition.dart';
@@ -274,7 +274,7 @@ class MainScreenState extends State<MainScreen> {
     /// are denied the `Future` will return an error.
       bool serviceEnabled;
       LocationPermission permission;
-
+      // #TODO this should be handled better
       // Test if location services are enabled.
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -309,8 +309,9 @@ class MainScreenState extends State<MainScreen> {
 
     positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
             (Position? position) {
-
-              print(position == null ? 'Unknown' : '${position.latitude.toString()}, ${position.longitude.toString()}');
+              if (kDebugMode) {
+                print(position == null ? 'Unknown' : '${position.latitude.toString()}, ${position.longitude.toString()}');
+              }
               if (position != null) {
                 location = position;
                 if (!isCompassConnected.value) {

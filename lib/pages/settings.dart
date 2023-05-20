@@ -8,7 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:random_color_scheme/random_color_scheme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controllers/bluetooth_сontroller.dart';
+import '../controllers/bluetooth_controller.dart';
 
 final Uri _url = Uri.parse('vk://vk.com/artbears');
 
