@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:background_location/background_location.dart';
 import 'package:compass_app/widgets/AnimatedHeart.dart';
 import 'package:compass_app/widgets/base_button.dart';
 import 'package:compass_app/widgets/copy_code_widget.dart';
@@ -14,11 +13,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:compass_app/pages/settings.dart';
 import '../controllers/bluetooth_сontroller.dart';
 import '../models/server_io.dart';
-import 'package:mutex/mutex.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
 import '../utils/location_utils.dart';
+import 'package:geolocator/geolocator.dart';
 
 // #TODO refactor all of this trash code, remove all logic from the UI
 // #TODO add some kind of state management
@@ -35,11 +34,10 @@ class MainScreen extends StatefulWidget {
 }
 
 class MainScreenState extends State<MainScreen> {
-  final lock = Mutex();
   bool heartClicked = false;
   bool isServerConnected = true;
   String id = "";
-  late Location location;
+  late Position location;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late final WebSocket socket;
 
@@ -51,6 +49,8 @@ class MainScreenState extends State<MainScreen> {
   bool ledState = false;
 
   BluetoothConnection? connection;
+
+  late StreamSubscription<Position> positionStream;
 
   @override
   void initState() {
@@ -82,15 +82,15 @@ class MainScreenState extends State<MainScreen> {
       // get azimuth
       // send azimuth via bluetooth
       var locationJson = jsonDecode(message);
-      if (location.latitude != null) {
-        var bearing = LocationUtils().getBearing(
-            double.parse(locationJson["lat"]),
-            double.parse(locationJson["long"]),
-            location.latitude ?? 0,
-            location.longitude ?? 0);
-        if (isCompassConnected.value && heartClicked) {
-          BTController().sendMessage(bearing.toString());
-        }
+      print('location1: ${location.latitude},${location.longitude}, location2: ${double.parse(locationJson["lat"])}, ${double.parse(locationJson["long"])}');
+      var bearing = LocationUtils().getBearing(
+          location.latitude,
+          location.longitude,
+          double.parse(locationJson["lat"]),
+          double.parse(locationJson["long"]),
+      );
+      if (isCompassConnected.value && heartClicked) {
+        BTController().sendMessage(bearing.toString());
       }
     });
     socket.connection.listen((state) {
@@ -269,52 +269,70 @@ class MainScreenState extends State<MainScreen> {
   void startLocationService() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    BackgroundLocation.setAndroidNotification(
-      title: 'Background service is running',
-      message: 'Background location in progress',
-      icon: '@mipmap-hdpi/ic_monochrome.png',
+    /// Determine the current position of the device.
+    ///
+    /// When the location services are not enabled or permissions
+    /// are denied the `Future` will return an error.
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      // Test if location services are enabled.
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        // Location services are not enabled don't continue
+        // accessing the position and request users of the
+        // App to enable the location services.
+        return;
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+      await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          // Permissions are denied, next time you could try
+          // requesting permissions again (this is also where
+          // Android's shouldShowRequestPermissionRationale
+          // returned true. According to Android guidelines
+          // your App should show an explanatory UI now.
+          return Future.error('Location permissions are denied');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        // Permissions are denied forever, handle appropriately.
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
+      }
+    const LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 0,
     );
 
-    await BackgroundLocation.setAndroidConfiguration(1000);
-    await BackgroundLocation.startLocationService();
+    positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+            (Position? position) {
 
-    BackgroundLocation.getLocationUpdates((bgLocation) {
-      if (lock.isLocked) return;
-      lock.protect(() {
-        // if (kDebugMode) {
-        //   print('''\n
-        //                 Latitude:  ${bgLocation.latitude.toString()}
-        //                 Longitude: ${bgLocation.longitude.toString()}
-        //                 Altitude: ${bgLocation.altitude.toString()}
-        //                 Accuracy: ${bgLocation.accuracy.toString()}
-        //                 Speed: ${bgLocation.speed.toString()}
-        //                 Time: ${DateTime.now().toString()}
-        //               ''');
-        // }
-        
-        location = bgLocation;
-        if (!isCompassConnected.value){
-          sendMessage(
-              LocationRequest(
-                "location",
-                prefs.getString('id')??"",
-                bgLocation.latitude.toString(),
-                bgLocation.longitude.toString(),
-                bgLocation.altitude.toString(),
-                bgLocation.accuracy.toString(),
-                bgLocation.bearing.toString(),
-                bgLocation.speed.toString(),
-                DateTime.now().microsecondsSinceEpoch.toString(),)
-          );
-        }
+              print(position == null ? 'Unknown' : '${position.latitude.toString()}, ${position.longitude.toString()}');
 
-        return Future.delayed(const Duration(milliseconds: 100));
-      });
-    });
+          if (!isCompassConnected.value && position != null){
+            location = position;
+            sendMessage(
+                LocationRequest(
+                  "location",
+                  prefs.getString('id')??"",
+                  position.latitude.toString(),
+                  position.longitude.toString(),
+                  position.altitude.toString(),
+                  position.accuracy.toString(),
+                  position.heading.toString(),
+                  position.speed.toString(),
+                  DateTime.now().microsecondsSinceEpoch.toString()));
+          }
+            }
+    );
   }
   
   void stopLocation(){
-    BackgroundLocation.stopLocationService();
+    positionStream.cancel();
   }
 
   Future<String> fetchHost() async {
@@ -336,9 +354,9 @@ class MainScreenState extends State<MainScreen> {
       this.connection = connection;
     });
   }
+
   @override
   void dispose() {
-    BackgroundLocation.stopLocationService();
     super.dispose();
   }
 
